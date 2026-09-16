@@ -19,7 +19,7 @@ const InfoSection: React.FC = () => {
           <div className="w-full lg:w-1/4 flex flex-col gap-2">
             {[
               { id: 'tickets', icon: Ticket, label: { en: 'Tickets & Hours', id: 'Tiket & Jam' } },
-              { id: 'vision', icon: Target, label: { en: 'Vision & Mission', id: 'Visi & Misi' } },
+              { id: 'vision', icon: Target, label: { en: 'Museum Vision & Mission', id: 'Visi dan Misi Museum' } },
               { id: 'org', icon: Users, label: { en: 'Organization', id: 'Struktur Organisasi' } },
               { id: 'map', icon: Map, label: { en: 'Location Map', id: 'Peta Lokasi' } },
             ].map((tab) => (
