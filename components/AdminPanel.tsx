@@ -2,16 +2,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useData } from '../contexts/DataContext';
 import { LocalizedText, SectionKey } from '../types';
-import { 
-  X, Plus, Trash2, Edit2, Globe, Palette, Users, FileText, Music, Instagram, 
-  Phone, Ticket, MapPin, Navigation, Layout, User as UserIcon, Key, 
-  AlertTriangle, Save, PlusCircle, ArrowUp, ArrowDown, Link as LinkIcon, 
+import {
+  X, Plus, Trash2, Edit2, Globe, Palette, Users, FileText, Music, Instagram,
+  Phone, Ticket, MapPin, Navigation, Layout, User as UserIcon, Key,
+  AlertTriangle, Save, PlusCircle, ArrowUp, ArrowDown, Link as LinkIcon,
   Image as ImageIcon, CheckCircle, Info, Landmark, Calendar, Clock, Camera,
   GripVertical, Eye, EyeOff, Monitor, ChevronLeft, ChevronRight, RefreshCw,
   GripHorizontal, Maximize, ZoomIn, ZoomOut, Lock, Settings, Target, Hash,
   Images, LogOut, ArrowLeft, ArrowRight, Layers, Map as MapIcon, MousePointerClick,
-  ListOrdered, ArrowUpToLine, ArrowDownToLine, RotateCcw, Sparkles
+  ListOrdered, ArrowUpToLine, ArrowDownToLine, RotateCcw, Sparkles, Building2, CheckCircle2,
+  Table
 } from 'lucide-react';
+import { formatGoogleDriveUrl, isGoogleDriveUrl } from '../src/utils/imageHelper';
 
 // Import public components for preview
 import Hero from './Hero';
@@ -59,9 +61,9 @@ const SECTION_METADATA: Record<SectionKey, { name: LocalizedText; desc: Localize
     category: 'Edukasi'
   },
   arts: {
-    name: { id: 'Seni & Pertunjukan', en: 'Arts & Performance' },
-    desc: { id: 'Kesenian tradisional kota: Randai, Kuda Kepang, Tari Piring, dan atraksi budaya', en: 'Traditional arts: Randai, Kuda Kepang, Plate Dance, and cultural performances' },
-    icon: Music,
+    name: { id: 'Lembaga Kebudayaan', en: 'Cultural Institutions' },
+    desc: { id: 'Daftar sanggar seni tradisi, paguyuban adat, dan komunitas budaya dengan format berita & isian list program', en: 'Cultural institutions, studios, and heritage guilds with news articles and list features' },
+    icon: Building2,
     category: 'Budaya'
   },
   news: {
@@ -85,9 +87,9 @@ const SECTION_METADATA: Record<SectionKey, { name: LocalizedText; desc: Localize
 };
 
 const AdminPanel: React.FC = () => {
-  const { 
+  const {
     language, isAdminOpen, setIsAdminOpen, isAuthenticated, login, loginWithEmail, logout,
-    content, updateContent, updateTheme, 
+    content, updateContent, updateTheme,
     users, addUser, deleteUser,
     navItems, addNavItem, updateNavItem, deleteNavItem,
     news, addNews, updateNews, deleteNews,
@@ -109,7 +111,7 @@ const AdminPanel: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('general');
   const [saveStatus, setSaveStatus] = useState<Record<string, boolean>>({});
   const [showPreview, setShowPreview] = useState(true);
-  
+
   const [previewWidth, setPreviewWidth] = useState(window.innerWidth * 0.6);
   const [isResizing, setIsResizing] = useState(false);
   const [manualZoom, setManualZoom] = useState(0.95);
@@ -133,7 +135,7 @@ const AdminPanel: React.FC = () => {
         setTimeout(() => setIsShaking(false), 500);
         return;
     }
-    
+
     const result = await loginWithEmail(loginIdentifier, loginPassword);
     if (!result.success) {
         if (result.error?.includes('auth/invalid-credential')) {
@@ -179,7 +181,7 @@ const AdminPanel: React.FC = () => {
 
   const getScaleFactor = () => {
     const desktopBaseWidth = 1440;
-    const padding = 40; 
+    const padding = 40;
     const autoScale = (previewWidth - padding) / desktopBaseWidth;
     return Math.min(autoScale, 1.2) * manualZoom;
   };
@@ -270,7 +272,7 @@ const AdminPanel: React.FC = () => {
                         Login
                     </button>
                 </form>
-                
+
                 <p className="text-center text-xs text-gray-400 mt-12">
                     Gunakan username <strong className="text-black">admin</strong> (atau sesuai konfigurasi) untuk menjadi Admin. Opsi Google Login telah dinonaktifkan sesuai permintaan.
                 </p>
@@ -282,7 +284,7 @@ const AdminPanel: React.FC = () => {
             <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center mix-blend-luminosity"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-            
+
             <div className="absolute bottom-16 left-16 right-16">
                 <div className="w-12 h-1 bg-heritage-gold mb-6"></div>
                 <h3 className="text-4xl font-serif text-white font-bold mb-4 leading-tight">Melestarikan Warisan,<br/>Membangun Masa Depan.</h3>
@@ -360,7 +362,7 @@ const AdminPanel: React.FC = () => {
     { id: 'heritage', label: 'Warisan', icon: FileText },
     { id: 'map', label: 'Museum & Tiket', icon: MapIcon },
     { id: 'portals', label: 'Portal Luar', icon: MousePointerClick },
-    { id: 'arts', label: 'Kesenian', icon: Music },
+    { id: 'arts', label: 'Lembaga Kebudayaan', icon: Building2 },
     { id: 'news', label: 'Berita', icon: Instagram },
     { id: 'destinations', label: 'Destinasi', icon: MapPin },
     { id: 'tickets', label: 'Operasional', icon: Ticket },
@@ -372,7 +374,7 @@ const AdminPanel: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[100] flex bg-[#FBFBFC] font-sans overflow-hidden" ref={containerRef}>
-      
+
       {/* Sidebar - Enterprise Dark */}
       <div className="w-56 bg-slate-950 flex flex-col h-full z-20 shadow-xl text-slate-300">
         <div className="p-6 border-b border-slate-800/50 flex items-center gap-3">
@@ -384,15 +386,15 @@ const AdminPanel: React.FC = () => {
             <p className="text-[10px] text-slate-500 uppercase tracking-wider">Management Suite</p>
           </div>
         </div>
-        
+
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
           {sidebarLinks.map((link) => (
-            <button 
-              key={link.id} 
-              onClick={() => setActiveSection(link.id)} 
+            <button
+              key={link.id}
+              onClick={() => setActiveSection(link.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
-                activeSection === link.id 
-                ? 'bg-slate-800 text-white shadow-sm' 
+                activeSection === link.id
+                ? 'bg-slate-800 text-white shadow-sm'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
@@ -424,7 +426,7 @@ const AdminPanel: React.FC = () => {
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar">
             <div className="max-w-4xl mx-auto pb-20">
-              
+
               {/* GENERAL BRANDING */}
               {activeSection === 'general' && (
                 <div className="space-y-8 animate-fade-in">
@@ -528,8 +530,8 @@ const AdminPanel: React.FC = () => {
                         <div
                           key={secKey}
                           className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-200 gap-4 ${
-                            isVisible 
-                              ? 'bg-white border-slate-200/90 shadow-sm hover:border-heritage-gold/50 hover:shadow-md' 
+                            isVisible
+                              ? 'bg-white border-slate-200/90 shadow-sm hover:border-heritage-gold/50 hover:shadow-md'
                               : 'bg-slate-50/80 border-slate-200 opacity-60'
                           }`}
                         >
@@ -537,8 +539,8 @@ const AdminPanel: React.FC = () => {
                           <div className="flex items-center gap-4 flex-1">
                             {/* Position Number Badge */}
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 border ${
-                              isVisible 
-                                ? 'bg-slate-900 text-heritage-gold border-slate-800' 
+                              isVisible
+                                ? 'bg-slate-900 text-heritage-gold border-slate-800'
                                 : 'bg-slate-200 text-slate-500 border-slate-300'
                             }`}>
                               #{index + 1}
@@ -546,8 +548,8 @@ const AdminPanel: React.FC = () => {
 
                             {/* Section Icon */}
                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
-                              isVisible 
-                                ? 'bg-amber-50 border-amber-200/80 text-heritage-gold' 
+                              isVisible
+                                ? 'bg-amber-50 border-amber-200/80 text-heritage-gold'
                                 : 'bg-slate-100 border-slate-200 text-slate-400'
                             }`}>
                               <IconComponent className="w-5 h-5" />
@@ -588,8 +590,8 @@ const AdminPanel: React.FC = () => {
                               disabled={isFirst}
                               title="Pindah ke Paling Atas"
                               className={`p-2 rounded-lg text-xs font-medium transition-colors ${
-                                isFirst 
-                                  ? 'text-slate-300 cursor-not-allowed' 
+                                isFirst
+                                  ? 'text-slate-300 cursor-not-allowed'
                                   : 'text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-xs'
                               }`}
                             >
@@ -603,8 +605,8 @@ const AdminPanel: React.FC = () => {
                               disabled={isFirst}
                               title="Geser Naik (Ke Atas)"
                               className={`flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                isFirst 
-                                  ? 'text-slate-300 cursor-not-allowed' 
+                                isFirst
+                                  ? 'text-slate-300 cursor-not-allowed'
                                   : 'bg-white text-slate-800 shadow-xs hover:bg-slate-900 hover:text-white'
                               }`}
                             >
@@ -619,8 +621,8 @@ const AdminPanel: React.FC = () => {
                               disabled={isLast}
                               title="Geser Turun (Ke Bawah)"
                               className={`flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                isLast 
-                                  ? 'text-slate-300 cursor-not-allowed' 
+                                isLast
+                                  ? 'text-slate-300 cursor-not-allowed'
                                   : 'bg-white text-slate-800 shadow-xs hover:bg-slate-900 hover:text-white'
                               }`}
                             >
@@ -636,8 +638,8 @@ const AdminPanel: React.FC = () => {
                               onClick={() => toggleSectionVisibility(secKey)}
                               title={isVisible ? 'Sembunyikan Seksi dari Beranda' : 'Tampilkan Seksi di Beranda'}
                               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                isVisible 
-                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs' 
+                                isVisible
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs'
                                   : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                               }`}
                             >
@@ -655,11 +657,11 @@ const AdminPanel: React.FC = () => {
                     <div className="text-xs text-slate-500">
                       Perubahan tata letak tersimpan otomatis dan dapat langsung dicek di halaman utama.
                     </div>
-                    <FormActions 
-                      id="layout-save" 
+                    <FormActions
+                      id="layout-save"
                       onSave={async () => {
                         await saveLayout(sectionOrder, sectionVisibility);
-                      }} 
+                      }}
                     />
                   </div>
                 </div>
@@ -709,7 +711,7 @@ const AdminPanel: React.FC = () => {
               {activeSection === 'heritage' && (
                 <div className="space-y-12 animate-fade-in">
                   <SectionHeader icon={FileText} title="Konten Warisan" subtitle="Sejarah & Budaya" />
-                  
+
                   {/* Tangible */}
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
                      <h4 className="font-serif text-xl font-bold mb-6 text-heritage-dark border-b border-slate-100 pb-4">Warisan Benda (Sejarah)</h4>
@@ -816,7 +818,7 @@ const AdminPanel: React.FC = () => {
                                    <label className="input-label">Misi Museum (ID)</label>
                                    <textarea value={getLoc(m.mission, 'id')} onChange={(e) => updateMuseum(m.id, {...m, mission: setLoc(m.mission, e.target.value, 'id')})} className="input-field h-24" placeholder="Misi museum..." />
                                 </div>
-                                
+
                                 {/* Ticket Prices Section */}
                                 <div className="pt-6 border-t border-slate-100">
                                    <div className="flex justify-between items-center mb-4">
@@ -904,41 +906,343 @@ const AdminPanel: React.FC = () => {
                  </div>
               )}
 
-              {/* ARTS */}
+              {/* LEMBAGA KEBUDAYAAN (ARTS & CULTURAL INSTITUTIONS) */}
               {activeSection === 'arts' && (
                 <div className="space-y-12 animate-fade-in">
-                   <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
-                      <SectionHeader icon={Music} title="Seni & Pertunjukan" subtitle="Aset Budaya" />
-                      <button onClick={() => addArtItem({ id: Date.now().toString(), title: {en:'New Performance', id:'Seni Baru'}, description: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Aset</button>
+                   <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-200/60 pb-8 gap-4">
+                      <SectionHeader icon={Building2} title="Lembaga Kebudayaan" subtitle="Sanggar Seni, Komunitas Adat & Format Berita" />
+                      <button
+                        onClick={() => addArtItem({
+                          id: Date.now().toString(),
+                          title: { en: 'New Cultural Institution', id: 'Lembaga Kebudayaan Baru' },
+                          category: { en: 'Traditional Arts Studio', id: 'Sanggar Seni Tradisional' },
+                          date: 'Terdaftar & Aktif',
+                          description: { en: '', id: '' },
+                          imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+                          listItems: [
+                            { id: 'Program Pelatihan Seni Tradisi Rutin', en: 'Routine Traditional Arts Training Program' },
+                            { id: 'Pementasan Budaya & Festival Kota', en: 'Cultural Performances & City Festivals' }
+                          ],
+                          tableData: [
+                            {
+                              no: 1,
+                              description: { id: 'Pelatihan rutin tari & musik tradisi', en: 'Routine training for traditional dance & music' },
+                              notes: { id: 'Setiap Sabtu & Minggu', en: 'Every Saturday & Sunday' }
+                            },
+                            {
+                              no: 2,
+                              description: { id: 'Partisipasi Festival Budaya Sawahlunto', en: 'Sawahlunto Cultural Festival Participation' },
+                              notes: { id: 'Agenda Tahunan Kota', en: 'Annual City Event' }
+                            }
+                          ],
+                          leader: '',
+                          location: { id: 'Kota Sawahlunto', en: 'Sawahlunto City' },
+                          contact: ''
+                        })}
+                        className="btn-add shrink-0"
+                      >
+                        <Plus className="w-4 h-4" /> Tambah Lembaga
+                      </button>
                    </div>
-                   
+
+                   <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                      <Sparkles className="w-5 h-5 text-heritage-gold shrink-0 mt-0.5" />
+                      <div className="text-xs text-amber-900 leading-relaxed">
+                        <strong>Tips Tampilan Berita & Gambar Google Drive:</strong> Anda dapat menempelkan tautan langsung Google Drive (misal: <code>https://drive.google.com/file/d/.../view</code>). Sistem secara otomatis mengonversinya menjadi gambar berkecepatan tinggi. Setiap lembaga dilengkapi dengan format berita, deskripsi, dan isian daftar program kerja.
+                      </div>
+                   </div>
+
                    <div className="grid grid-cols-1 gap-8">
-                      {content.arts.items.map(art => (
-                        <div key={art.id} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row gap-6 shadow-sm hover:shadow-lg transition-all duration-500 relative">
-                           <div className="absolute top-6 right-6">
-                              <button onClick={() => deleteArtItem(art.id)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
-                           </div>
-                           
-                           <div className="w-full md:w-40 h-40 rounded-xl overflow-hidden shrink-0 border-4 border-[#FBFBFC] shadow-sm group">
-                              <img src={art.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                           </div>
-                           <div className="flex-1 space-y-6">
-                              <div className="pr-10">
-                                  <label className="input-label mb-2">Nama Kesenian (ID)</label>
-                                  <input type="text" value={getLoc(art.title, 'id')} onChange={(e) => updateArtItem(art.id, {...art, title: setLoc(art.title, e.target.value, 'id')})} className="bg-transparent font-serif font-bold text-xl text-black focus:outline-none w-full border-b border-transparent focus:border-heritage-gold/50 transition-colors pb-1" placeholder="Nama Kesenian..." />
-                              </div>
-                              <div className="space-y-2">
-                                  <label className="input-label">Deskripsi (ID)</label>
-                                  <textarea value={getLoc(art.description, 'id')} onChange={(e) => updateArtItem(art.id, {...art, description: setLoc(art.description, e.target.value, 'id')})} className="input-field text-sm min-h-[100px]" placeholder="Jelaskan tentang aset ini..." />
-                              </div>
-                              <div className="space-y-2">
-                                  <label className="input-label">URL Gambar</label>
-                                  <input type="text" value={art.imageUrl || ''} onChange={(e) => updateArtItem(art.id, {...art, imageUrl: e.target.value})} className="input-field font-mono text-xs" placeholder="https://..." />
-                              </div>
-                              <FormActions id={`art-${art.id}`} onSave={() => updateArtItem(art.id, art)} />
-                           </div>
-                        </div>
-                      ))}
+                      {content.arts.items.map(art => {
+                        const directImg = formatGoogleDriveUrl(art.imageUrl);
+                        return (
+                          <div key={art.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative space-y-6">
+                             <div className="absolute top-6 right-6 z-10">
+                                <button onClick={() => deleteArtItem(art.id)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Hapus Lembaga">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                             </div>
+
+                             <div className="flex flex-col md:flex-row gap-6 items-start">
+                                <div className="w-full md:w-56 aspect-[16/10] rounded-xl overflow-hidden shrink-0 border-2 border-slate-100 bg-slate-900 relative group">
+                                   <img 
+                                     src={directImg || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400"} 
+                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                     alt="" 
+                                     onError={(e) => {
+                                       e.target.src = "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400";
+                                     }}
+                                   />
+                                   <div className="absolute bottom-2 left-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[10px] text-white truncate text-center">
+                                     {art.imageUrl?.includes("drive.google.com") ? "✓ Google Drive" : "Preview Gambar"}
+                                   </div>
+                                </div>
+
+                                <div className="flex-1 space-y-4 w-full pr-8">
+                                   <div>
+                                       <label className="input-label mb-1">Nama Lembaga / Judul Berita (ID)</label>
+                                       <input 
+                                         type="text" 
+                                         value={getLoc(art.title, "id")} 
+                                         onChange={(e) => updateArtItem(art.id, {...art, title: setLoc(art.title, e.target.value, "id")})} 
+                                         className="input-field font-serif font-bold text-lg text-slate-900" 
+                                         placeholder="Contoh: Sanggar Randai Ombilin..." 
+                                       />
+                                   </div>
+
+                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                     <div className="space-y-1.5">
+                                       <label className="input-label">Kategori Lembaga (ID)</label>
+                                       <input 
+                                         type="text" 
+                                         value={getLoc(art.category, "id") || ""} 
+                                         onChange={(e) => updateArtItem(art.id, {...art, category: setLoc(art.category || {en:"", id:""}, e.target.value, "id")})} 
+                                         className="input-field text-xs" 
+                                         placeholder="Contoh: Sanggar Seni Tradisional" 
+                                       />
+                                     </div>
+                                     <div className="space-y-1.5">
+                                       <label className="input-label">Status / Tahun</label>
+                                       <input 
+                                         type="text" 
+                                         value={art.date || ""} 
+                                         onChange={(e) => updateArtItem(art.id, {...art, date: e.target.value})} 
+                                         className="input-field text-xs" 
+                                         placeholder="Contoh: Terdaftar & Aktif" 
+                                       />
+                                     </div>
+                                   </div>
+
+                                   <div className="space-y-1.5">
+                                       <label className="input-label">URL Gambar (Mendukung Link Google Drive)</label>
+                                       <input 
+                                         type="text" 
+                                         value={art.imageUrl || ""} 
+                                         onChange={(e) => updateArtItem(art.id, {...art, imageUrl: e.target.value})} 
+                                         className="input-field font-mono text-xs text-blue-600" 
+                                         placeholder="https://drive.google.com/file/d/... atau https://..." 
+                                       />
+                                   </div>
+                                </div>
+                             </div>
+
+                             <div className="space-y-2">
+                                 <label className="input-label">Deskripsi Lengkap / Isi Berita (ID)</label>
+                                 <textarea 
+                                   value={getLoc(art.description, "id")} 
+                                   onChange={(e) => updateArtItem(art.id, {...art, description: setLoc(art.description, e.target.value, "id")})} 
+                                   className="input-field text-sm min-h-[110px]" 
+                                   placeholder="Uraikan latar belakang, sejarah, filosofi gerak/kesenian, dan peran lembaga ini..." 
+                                 />
+                             </div>
+
+                             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-2">
+                                   <CheckCircle2 className="w-4 h-4 text-heritage-gold" />
+                                   <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Isian List (Daftar Program Kerja / Poin Unggulan)</label>
+                                 </div>
+                                 <button
+                                   type="button"
+                                   onClick={() => {
+                                     const currentList = art.listItems || [];
+                                     const updatedList = [...currentList, { id: "Program Baru", en: "New Program" }];
+                                     updateArtItem(art.id, { ...art, listItems: updatedList });
+                                   }}
+                                   className="px-2.5 py-1 bg-white hover:bg-heritage-gold hover:text-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-600 transition-colors flex items-center gap-1 shadow-2xs"
+                                 >
+                                   <Plus className="w-3.5 h-3.5" /> Tambah Poin
+                                 </button>
+                                </div>
+
+                                {(!art.listItems || art.listItems.length === 0) ? (
+                                  <p className="text-xs text-slate-400 italic">Belum ada poin isian list. Klik tombol di atas untuk menambahkan poin.</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {art.listItems.map((itemObj, idx) => (
+                                      <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200">
+                                        <span className="text-xs font-mono font-bold text-heritage-gold w-5 text-center">{idx + 1}.</span>
+                                        <input 
+                                          type="text" 
+                                          value={getLoc(itemObj, "id")} 
+                                          onChange={(e) => {
+                                            const currentList = [...(art.listItems || [])];
+                                            currentList[idx] = setLoc(currentList[idx] || { id: "", en: "" }, e.target.value, "id");
+                                            updateArtItem(art.id, { ...art, listItems: currentList });
+                                          }}
+                                          className="flex-1 bg-transparent text-xs text-slate-800 focus:outline-none" 
+                                          placeholder="Tuliskan program / keunggulan..." 
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const currentList = (art.listItems || []).filter((_, i) => i !== idx);
+                                            updateArtItem(art.id, { ...art, listItems: currentList });
+                                          }}
+                                          className="text-slate-400 hover:text-red-500 p-1"
+                                          title="Hapus poin"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                             </div>
+
+                             {/* TABEL 3 KOLOM: NO, DESKRIPSI, KETERANGAN */}
+                             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-2">
+                                   <Table className="w-4 h-4 text-heritage-gold" />
+                                   <div>
+                                     <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+                                       Tabel Rincian Lembaga (3 Kolom)
+                                     </label>
+                                     <span className="text-[10px] text-slate-400">Kolom: No, Deskripsi, Keterangan</span>
+                                   </div>
+                                 </div>
+                                 <button
+                                   type="button"
+                                   onClick={() => {
+                                     const currentTable = art.tableData || [];
+                                     const nextNo = currentTable.length + 1;
+                                     const updatedTable = [
+                                       ...currentTable,
+                                       {
+                                         no: nextNo,
+                                         description: { id: "Deskripsi kegiatan / pertunjukan", en: "Activity / performance description" },
+                                         notes: { id: "Keterangan / Jadwal / Lokasi", en: "Notes / Schedule / Location" }
+                                       }
+                                     ];
+                                     updateArtItem(art.id, { ...art, tableData: updatedTable });
+                                   }}
+                                   className="px-2.5 py-1 bg-white hover:bg-heritage-gold hover:text-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-600 transition-colors flex items-center gap-1 shadow-2xs"
+                                 >
+                                   <Plus className="w-3.5 h-3.5" /> Tambah Baris
+                                 </button>
+                               </div>
+
+                               {(!art.tableData || art.tableData.length === 0) ? (
+                                 <div className="bg-white rounded-lg p-3 border border-dashed border-slate-200 text-center">
+                                   <p className="text-xs text-slate-400 italic">Belum ada baris tabel 3 kolom. Klik tombol "+ Tambah Baris" di atas.</p>
+                                 </div>
+                               ) : (
+                                 <div className="overflow-x-auto bg-white rounded-lg border border-slate-200">
+                                   <table className="w-full text-left border-collapse text-xs">
+                                     <thead>
+                                       <tr className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
+                                         <th className="py-2 px-2.5 text-center w-14">No</th>
+                                         <th className="py-2 px-3">Deskripsi (ID)</th>
+                                         <th className="py-2 px-3">Keterangan (ID)</th>
+                                         <th className="py-2 px-2 text-center w-10">Aksi</th>
+                                       </tr>
+                                     </thead>
+                                     <tbody className="divide-y divide-slate-100">
+                                       {art.tableData.map((row, rIdx) => (
+                                         <tr key={rIdx} className="hover:bg-slate-50/60 transition-colors">
+                                           <td className="py-2 px-2 text-center align-top">
+                                             <input
+                                               type="text"
+                                               value={row.no ?? (rIdx + 1)}
+                                               onChange={(e) => {
+                                                 const currentTable = [...(art.tableData || [])];
+                                                 currentTable[rIdx] = { ...currentTable[rIdx], no: e.target.value };
+                                                 updateArtItem(art.id, { ...art, tableData: currentTable });
+                                               }}
+                                               className="w-10 text-center font-mono font-bold text-heritage-gold bg-slate-50 border border-slate-200 rounded py-1 text-xs focus:outline-none focus:border-heritage-gold"
+                                             />
+                                           </td>
+                                           <td className="py-2 px-3 align-top">
+                                             <input
+                                               type="text"
+                                               value={getLoc(row.description, "id")}
+                                               onChange={(e) => {
+                                                 const currentTable = [...(art.tableData || [])];
+                                                 currentTable[rIdx] = {
+                                                   ...currentTable[rIdx],
+                                                   description: setLoc(currentTable[rIdx]?.description || { id: "", en: "" }, e.target.value, "id")
+                                                 };
+                                                 updateArtItem(art.id, { ...art, tableData: currentTable });
+                                               }}
+                                               className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-heritage-gold focus:bg-white"
+                                               placeholder="Deskripsi rincian kegiatan..."
+                                             />
+                                           </td>
+                                           <td className="py-2 px-3 align-top">
+                                             <input
+                                               type="text"
+                                               value={getLoc(row.notes, "id")}
+                                               onChange={(e) => {
+                                                 const currentTable = [...(art.tableData || [])];
+                                                 currentTable[rIdx] = {
+                                                   ...currentTable[rIdx],
+                                                   notes: setLoc(currentTable[rIdx]?.notes || { id: "", en: "" }, e.target.value, "id")
+                                                 };
+                                                 updateArtItem(art.id, { ...art, tableData: currentTable });
+                                               }}
+                                               className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-heritage-gold focus:bg-white"
+                                               placeholder="Keterangan / jadwal / catatan..."
+                                             />
+                                           </td>
+                                           <td className="py-2 px-2 text-center align-top">
+                                             <button
+                                               type="button"
+                                               onClick={() => {
+                                                 const currentTable = (art.tableData || []).filter((_, i) => i !== rIdx);
+                                                 updateArtItem(art.id, { ...art, tableData: currentTable });
+                                               }}
+                                               className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                               title="Hapus baris tabel"
+                                             >
+                                               <Trash2 className="w-3.5 h-3.5" />
+                                             </button>
+                                           </td>
+                                         </tr>
+                                       ))}
+                                     </tbody>
+                                   </table>
+                                 </div>
+                               )}
+                             </div>
+
+                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                               <div className="space-y-1">
+                                 <label className="input-label">Ketua / Pembina</label>
+                                 <input 
+                                   type="text" 
+                                   value={art.leader || ""} 
+                                   onChange={(e) => updateArtItem(art.id, {...art, leader: e.target.value})} 
+                                   className="input-field text-xs" 
+                                   placeholder="Nama Ketua..." 
+                                 />
+                               </div>
+                               <div className="space-y-1">
+                                 <label className="input-label">Lokasi / Wilayah (ID)</label>
+                                 <input 
+                                   type="text" 
+                                   value={getLoc(art.location, "id") || ""} 
+                                   onChange={(e) => updateArtItem(art.id, {...art, location: setLoc(art.location || {en:"", id:""}, e.target.value, "id")})} 
+                                   className="input-field text-xs" 
+                                   placeholder="Kecamatan / Desa..." 
+                                 />
+                               </div>
+                               <div className="space-y-1">
+                                 <label className="input-label">No. Kontak / WA</label>
+                                 <input 
+                                   type="text" 
+                                   value={art.contact || ""} 
+                                   onChange={(e) => updateArtItem(art.id, {...art, contact: e.target.value})} 
+                                   className="input-field text-xs" 
+                                   placeholder="+62 812..." 
+                                 />
+                               </div>
+                             </div>
+
+                             <FormActions id={`art-${art.id}`} onSave={() => updateArtItem(art.id, art)} />
+                          </div>
+                        );
+                      })}
                    </div>
                 </div>
               )}
@@ -950,7 +1254,7 @@ const AdminPanel: React.FC = () => {
                       <SectionHeader icon={Instagram} title="Media & Artikel" subtitle="Distribusi Konten" />
                       <button onClick={() => addNews({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], title: {en:'New Article', id:'Berita Baru'}, summary: {en:'',id:''}, content: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=400', imageUrls: [] })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Artikel</button>
                    </div>
-                   
+
                    <div className="space-y-8">
                       {news.map(item => (
                         <div key={item.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6 hover:shadow-lg transition-all duration-500 relative group/card">
@@ -1001,46 +1305,276 @@ const AdminPanel: React.FC = () => {
 
               {/* DESTINATIONS (Attractions) */}
               {activeSection === 'destinations' && (
-                 <div className="space-y-12 animate-fade-in">
-                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
-                       <SectionHeader icon={MapPin} title="Destinasi Wisata" subtitle="Objek Unggulan" />
-                       <button onClick={() => addAttraction({ id: Date.now().toString(), title: {en:'New Spot', id:'Wisata Baru'}, description: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=600', category: 'History' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Destinasi</button>
+                 <div className="space-y-10 animate-fade-in">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/80 pb-8">
+                       <SectionHeader 
+                         icon={MapPin} 
+                         title="Museum & Destinasi Wisata" 
+                         subtitle="Kelola data museum, koleksi foto berganti (slideshow), jam operasional, dan lokasi" 
+                       />
+                       <button 
+                         onClick={() => addAttraction({ 
+                           id: `dest-${Date.now()}`, 
+                           title: { en: 'New Museum Spot', id: 'Museum / Destinasi Baru' }, 
+                           description: { en: '', id: '' }, 
+                           imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800', 
+                           images: ['https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800'],
+                           category: 'History',
+                           location: { id: 'Kota Sawahlunto', en: 'Sawahlunto City' },
+                           operatingHours: { id: '08.00 - 16.00 WIB', en: '08:00 AM - 04:00 PM' }
+                         })} 
+                         className="btn-add self-start sm:self-auto"
+                       >
+                         <Plus className="w-4 h-4" /> Tambah Destinasi
+                       </button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                       {attractions.map(att => (
-                          <div key={att.id} className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition-all relative">
-                             <button onClick={() => deleteAttraction(att.id)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 z-10"><Trash2 className="w-4 h-4" /></button>
-                             <div className="space-y-6">
-                                <div className="h-48 rounded-2xl overflow-hidden border-2 border-slate-50 relative group">
-                                   <img src={att.imageUrl} className="w-full h-full object-cover" alt="" />
-                                   <div className="absolute inset-x-0 bottom-0 bg-white/90 p-2">
-                                      <input type="text" value={att.imageUrl || ''} onChange={(e) => updateAttraction(att.id, {...att, imageUrl: e.target.value})} className="w-full bg-transparent text-[10px] font-mono border-none focus:ring-0 p-0 text-center" placeholder="Image URL" />
-                                   </div>
+
+                    {/* Information / Instruction Banner */}
+                    <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 text-amber-950">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs font-bold">
+                        <Camera className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs sm:text-sm space-y-1">
+                        <h4 className="font-bold text-amber-900">Petunjuk Pengelolaan Foto Slideshow Museum</h4>
+                        <p className="text-amber-800/90 leading-relaxed">
+                          Anda dapat menambahkan beberapa foto pada setiap museum. Foto-foto tersebut akan otomatis 
+                          tampil berganti-ganti (slideshow) secara modern di beranda. Klik tombol <strong>+ Tambah Baris Foto Baru</strong> untuk 
+                          menambah kotak isian foto baru. Tautan <strong>Google Drive</strong> didukung secara otomatis!
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                       {attractions.map((att, attIdx) => {
+                          const imageList = (att.images && att.images.length > 0)
+                            ? att.images
+                            : (att.imageUrl ? [att.imageUrl] : ['']);
+
+                          const handleUpdateImageAt = (index: number, newUrl: string) => {
+                            const updatedList = [...imageList];
+                            updatedList[index] = newUrl;
+                            const firstValid = updatedList.find(u => u.trim() !== '') || newUrl;
+                            updateAttraction(att.id, {
+                              ...att,
+                              imageUrl: firstValid,
+                              images: updatedList
+                            });
+                          };
+
+                          const handleAddImageRow = () => {
+                            const updatedList = [...imageList, ''];
+                            updateAttraction(att.id, {
+                              ...att,
+                              images: updatedList
+                            });
+                          };
+
+                          const handleRemoveImageAt = (index: number) => {
+                            let updatedList = imageList.filter((_, i) => i !== index);
+                            if (updatedList.length === 0) updatedList = [''];
+                            const firstValid = updatedList.find(u => u.trim() !== '') || '';
+                            updateAttraction(att.id, {
+                              ...att,
+                              imageUrl: firstValid,
+                              images: updatedList
+                            });
+                          };
+
+                          return (
+                            <div key={att.id} className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 hover:shadow-xl transition-all relative flex flex-col justify-between space-y-6">
+                              {/* Top Bar Header */}
+                              <div className="flex items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs">
+                                    #{attIdx + 1}
+                                  </div>
+                                  <div>
+                                    <h3 className="font-serif font-bold text-slate-900 text-base sm:text-lg">
+                                      {getLoc(att.title, 'id') || 'Destinasi Tanpa Nama'}
+                                    </h3>
+                                    <span className="text-[10px] font-mono text-slate-400">ID: {att.id}</span>
+                                  </div>
                                 </div>
+                                <button 
+                                  onClick={() => {
+                                    if (window.confirm(`Hapus destinasi "${getLoc(att.title, 'id')}"?`)) {
+                                      deleteAttraction(att.id);
+                                    }
+                                  }} 
+                                  className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                  title="Hapus Destinasi"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              <div className="space-y-6">
+                                {/* FOTO SLIDESHOW / GALERI TEXTBOXES */}
+                                <div className="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <ImageIcon className="w-4 h-4 text-amber-600" />
+                                      <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                        Foto Museum (Tampil Berganti)
+                                      </label>
+                                    </div>
+                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                      {imageList.filter(u => u.trim() !== '').length} Foto
+                                    </span>
+                                  </div>
+
+                                  <p className="text-[11px] text-slate-500 leading-normal">
+                                    Setiap kotak di bawah adalah satu foto. Masukkan tautan web gambar atau tautan berbagi <strong>Google Drive</strong>.
+                                  </p>
+
+                                  {/* List of Image Textboxes */}
+                                  <div className="space-y-3">
+                                    {imageList.map((url, imgIdx) => {
+                                      const formatted = formatGoogleDriveUrl(url);
+                                      const isDrive = isGoogleDriveUrl(url);
+
+                                      return (
+                                        <div 
+                                          key={imgIdx} 
+                                          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs"
+                                        >
+                                          {/* Index & Thumbnail Box */}
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-900 border border-slate-200 relative shrink-0">
+                                              {formatted ? (
+                                                <img 
+                                                  src={formatted} 
+                                                  alt="Thumb" 
+                                                  referrerPolicy="no-referrer"
+                                                  onError={(e) => {
+                                                    e.currentTarget.src = 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800';
+                                                  }}
+                                                  className="w-full h-full object-cover" 
+                                                />
+                                              ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-slate-500 text-[10px]">
+                                                  No Img
+                                                </div>
+                                              )}
+                                            </div>
+                                            <span className="text-[11px] font-bold text-slate-600 font-mono w-16 sm:w-20">
+                                              {imgIdx === 0 ? 'Foto 1 (Utama)' : `Foto ${imgIdx + 1}`}
+                                            </span>
+                                          </div>
+
+                                          {/* Input Textbox */}
+                                          <div className="flex-1 min-w-0 space-y-1">
+                                            <input 
+                                              type="text" 
+                                              value={url} 
+                                              onChange={(e) => handleUpdateImageAt(imgIdx, e.target.value)}
+                                              placeholder="Tempel tautan foto (https://... atau link Google Drive)"
+                                              className="input-field text-xs font-mono py-1.5 px-3 h-9 w-full"
+                                            />
+                                            {isDrive && (
+                                              <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold">
+                                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                                <span>Google Drive Terdeteksi & Dikonversi</span>
+                                              </div>
+                                            )}
+                                          </div>
+
+                                          {/* Remove Image Row Button */}
+                                          {imageList.length > 1 && (
+                                            <button 
+                                              type="button" 
+                                              onClick={() => handleRemoveImageAt(imgIdx)}
+                                              className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors self-end sm:self-center"
+                                              title="Hapus baris foto ini"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Add Image Button */}
+                                  <button 
+                                    type="button" 
+                                    onClick={handleAddImageRow}
+                                    className="w-full py-2.5 px-3 rounded-xl border-2 border-dashed border-amber-300 hover:border-amber-500 bg-amber-50/50 hover:bg-amber-100/60 text-amber-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                                  >
+                                    <Plus className="w-4 h-4 text-amber-700" />
+                                    <span>+ Tambah Baris Foto Baru (Kotak Gambar)</span>
+                                  </button>
+                                </div>
+
+                                {/* DATA INFORMASI DESTINASI */}
                                 <div className="space-y-4">
-                                   <div className="flex gap-4">
-                                      <div className="flex-1 space-y-2">
-                                         <label className="input-label">Nama Destinasi (ID)</label>
-                                         <input type="text" value={getLoc(att.title, 'id')} onChange={(e) => updateAttraction(att.id, {...att, title: setLoc(att.title, e.target.value, 'id')})} className="input-field font-bold" />
-                                      </div>
-                                      <div className="w-1/3 space-y-2">
-                                         <label className="input-label">Kategori</label>
-                                         <select value={att.category} onChange={(e) => updateAttraction(att.id, {...att, category: e.target.value as any})} className="input-field">
-                                            <option value="History">Sejarah</option>
-                                            <option value="Nature">Alam</option>
-                                            <option value="Culture">Budaya</option>
-                                         </select>
-                                      </div>
-                                   </div>
-                                   <div className="space-y-2">
-                                      <label className="input-label">Deskripsi (ID)</label>
-                                      <textarea value={getLoc(att.description, 'id')} onChange={(e) => updateAttraction(att.id, {...att, description: setLoc(att.description, e.target.value, 'id')})} className="input-field h-24" />
-                                   </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="sm:col-span-2 space-y-1.5">
+                                      <label className="input-label">Nama Museum / Destinasi (ID)</label>
+                                      <input 
+                                        type="text" 
+                                        value={getLoc(att.title, 'id')} 
+                                        onChange={(e) => updateAttraction(att.id, {...att, title: setLoc(att.title, e.target.value, 'id')})} 
+                                        className="input-field font-bold text-sm" 
+                                        placeholder="Contoh: Museum Goedang Ransoem"
+                                      />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <label className="input-label">Kategori</label>
+                                      <select 
+                                        value={att.category} 
+                                        onChange={(e) => updateAttraction(att.id, {...att, category: e.target.value as any})} 
+                                        className="input-field text-sm"
+                                      >
+                                        <option value="History">Sejarah (History)</option>
+                                        <option value="Culture">Budaya (Culture)</option>
+                                        <option value="Nature">Alam (Nature)</option>
+                                      </select>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                      <label className="input-label">Lokasi Singkat</label>
+                                      <input 
+                                        type="text" 
+                                        value={att.location ? getLoc(att.location, 'id') : ''} 
+                                        onChange={(e) => updateAttraction(att.id, {...att, location: setLoc(att.location || {id:'', en:''}, e.target.value, 'id')})} 
+                                        className="input-field text-xs" 
+                                        placeholder="Contoh: Kelurahan Air Dingin, Lembah Segar"
+                                      />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <label className="input-label">Jam Operasional</label>
+                                      <input 
+                                        type="text" 
+                                        value={att.operatingHours ? getLoc(att.operatingHours, 'id') : ''} 
+                                        onChange={(e) => updateAttraction(att.id, {...att, operatingHours: setLoc(att.operatingHours || {id:'', en:''}, e.target.value, 'id')})} 
+                                        className="input-field text-xs" 
+                                        placeholder="Contoh: 08.00 - 16.00 WIB"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-1.5">
+                                    <label className="input-label">Deskripsi Lengkap (ID)</label>
+                                    <textarea 
+                                      value={getLoc(att.description, 'id')} 
+                                      onChange={(e) => updateAttraction(att.id, {...att, description: setLoc(att.description, e.target.value, 'id')})} 
+                                      className="input-field h-24 text-xs leading-relaxed" 
+                                      placeholder="Tuliskan sejarah, latar belakang, dan keunikan museum..."
+                                    />
+                                  </div>
                                 </div>
+                              </div>
+
+                              {/* Form Actions Footer */}
+                              <div className="pt-2 border-t border-slate-100">
                                 <FormActions id={`att-${att.id}`} onSave={() => updateAttraction(att.id, att)} />
-                             </div>
-                          </div>
-                       ))}
+                              </div>
+                            </div>
+                          );
+                       })}
                     </div>
                  </div>
               )}
@@ -1049,7 +1583,7 @@ const AdminPanel: React.FC = () => {
               {activeSection === 'tickets' && (
                  <div className="space-y-12 animate-fade-in">
                     <SectionHeader icon={Ticket} title="Tiket & Operasional" subtitle="Harga & Jam Buka" />
-                    
+
                     {/* Opening Hours */}
                      <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
                        <h4 className="font-serif text-lg font-bold mb-6">Jam Operasional</h4>
@@ -1128,7 +1662,7 @@ const AdminPanel: React.FC = () => {
               {activeSection === 'users' && (
                 <div className="space-y-12 animate-fade-in">
                   <SectionHeader icon={Key} title="Daftar Admin" subtitle="Manajemen Akses Pengguna" />
-                  
+
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-8">
                     <p className="text-sm text-gray-600 mb-6">
                       Daftar pengguna yang memiliki akses ke panel admin. Pengguna baru dapat ditambahkan dengan memasukkan username dan password.
@@ -1147,7 +1681,7 @@ const AdminPanel: React.FC = () => {
                             </div>
                           </div>
                           {user.username !== 'admin' && (
-                            <button 
+                            <button
                               onClick={() => deleteUser(user.id)}
                               className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                               title="Hapus Pengguna"
@@ -1207,7 +1741,7 @@ const AdminPanel: React.FC = () => {
               {activeSection === 'contact' && (
                  <div className="space-y-12 animate-fade-in">
                     <SectionHeader icon={Phone} title="Kontak & Sosial" subtitle="Informasi Hubungi Kami" />
-                    
+
                     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
                         <h4 className="font-serif text-lg font-bold mb-6">Informasi Dasar</h4>
                         <div className="grid gap-6">

@@ -174,29 +174,159 @@ const defaultContent: SiteContent = {
     imageUrl: 'https://picsum.photos/600/400?random=10'
   },
   arts: {
-    sectionTitle: { en: 'Arts & Performance', id: 'Seni & Pertunjukan' },
+    sectionTitle: { en: 'CULTURAL INSTITUTIONS', id: 'LEMBAGA KEBUDAYAAN' },
     description: {
-       en: 'Sawahlunto is a melting pot of cultures, giving birth to unique arts ranging from traditional Minangkabau performances to multicultural multicultural acculturation.',
-       id: 'Sawahlunto adalah kuali peleburan budaya, melahirkan kesenian unik mulai dari pertunjukan tradisional Minangkabau hingga akulturasi multikultural.'
+       en: 'Cultural institutions, traditional art studios, and community heritage groups preserving the unique living heritage and multicultural traditions of Sawahlunto.',
+       id: 'Lembaga kebudayaan, sanggar seni tradisi, paguyuban adat, dan komunitas pelestari yang merawat warisan budaya hidup serta keberagaman seni Kota Sawahlunto.'
     },
     items: [
         {
             id: '1',
-            title: { en: 'Randai', id: 'Randai' },
-            description: { en: 'Traditional Minangkabau folk theater combining martial arts, dance, and drama.', id: 'Teater rakyat tradisional Minangkabau yang menggabungkan silat, tari, dan drama.' },
-            imageUrl: 'https://picsum.photos/400/300?random=art1'
+            title: { en: 'Randai & Traditional Folk Theater Studio', id: 'Sanggar Randai & Teater Tradisi Ombilin' },
+            category: { en: 'Traditional Arts Studio', id: 'Sanggar Seni Tradisional' },
+            date: 'Terdaftar & Aktif',
+            description: { 
+              en: 'A premier cultural institution dedicated to preserving Minangkabau traditional folk theater that seamlessly blends martial arts (silek), poetic chanting (dendang kaba), dramatic storytelling, and rhythmic tap of galembong pants.', 
+              id: 'Lembaga pelestari seni teater rakyat tradisional Minangkabau yang memadukan gerakan pencak silat (silek), tembang dendang kaba, seni peran dramatik, dan tepukan celana galembong yang rancak.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+            listItems: [
+              { id: 'Pelatihan Rutin Tari & Silek Galembong bagi Generasi Muda Sawahlunto', en: 'Routine Dance & Silek Training for Sawahlunto Youth Generation' },
+              { id: 'Pementasan Lakon Kaba Klasik (Cindua Mato, Malin Deman, Anggun Nan Tongga)', en: 'Staging of Classic Folk Tales & Dramatic Narratives' },
+              { id: 'Partisipasi Utama pada Sawahlunto International Music & Heritage Festival (SIMFest)', en: 'Main Performer at Sawahlunto International Music & Heritage Festival (SIMFest)' },
+              { id: 'Edukasi dan Pembinaan Teater Tradisi ke Sekolah-Sekolah Kota', en: 'Cultural Education Programs across Local Schools and Community Centers' }
+            ],
+            tableData: [
+              {
+                no: 1,
+                description: { id: 'Pelatihan Silek & Randai Remaja', en: 'Youth Silek & Randai Training' },
+                notes: { id: 'Setiap Sabtu & Minggu (16:00 - 18:00 WIB)', en: 'Every Saturday & Sunday (16:00 - 18:00)' }
+              },
+              {
+                no: 2,
+                description: { id: 'Pementasan Lakon Kaba Minangkabau', en: 'Minangkabau Folk Tale Staging' },
+                notes: { id: 'Agenda SIMFest & Event Budaya Kota', en: 'SIMFest & City Cultural Calendar' }
+              },
+              {
+                no: 3,
+                description: { id: 'Workshop Celana Galembong & Tembang', en: 'Galembong Pants & Chanting Workshop' },
+                notes: { id: 'Terbuka untuk Pelajar & Umum', en: 'Open for Students & Public' }
+              }
+            ],
+            leader: 'Mak Katik & Dewan Kesenian Kota',
+            location: { id: 'Kecamatan Lembah Segar, Kota Sawahlunto', en: 'Lembah Segar District, Sawahlunto' },
+            contact: '+62 812-7654-3210'
         },
         {
             id: '2',
-            title: { en: 'Kuda Kepang', id: 'Kuda Kepang' },
-            description: { en: 'A traditional Javanese dance depicting a group of horsemen, reflecting the multicultural history of Sawahlunto.', id: 'Tarian tradisional Jawa yang menggambarkan sekelompok prajurit berkuda, mencerminkan sejarah multikultural Sawahlunto.' },
-            imageUrl: 'https://picsum.photos/400/300?random=art2'
+            title: { en: 'Traditional Minangkabau Dance & Percussion Center', id: 'Sanggar Tari Tradisional & Musik Talempong' },
+            category: { en: 'Dance & Music Community', id: 'Komunitas Tari & Musik Tradisi' },
+            date: 'Terdaftar & Aktif',
+            description: { 
+              en: 'Center for cultivating classic Minangkabau performing arts, showcasing dynamic Tari Piring (plate dance on broken shards), ceremonial Tari Pasambahan, and energetic Talempong percussion.', 
+              id: 'Wadah pembinaan dan pementasan seni tari klasik khas Minangkabau, seperti Tari Piring di atas pecahan kaca, Tari Pasambahan penyambutan tamu kehormatan, dan ensambel musik Talempong Pacik.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
+            listItems: [
+              { id: 'Pembinaan Sanggar Tari Anak dan Remaja Putri Kota Sawahlunto', en: 'Training Classes for Children and Youth Dancers' },
+              { id: 'Penyambutan Resmi Tamu Kenegaraan & Delegasi Warisan Budaya UNESCO', en: 'Official Welcoming Ceremonies for State Guests and UNESCO Delegations' },
+              { id: 'Pentas Kolaborasi Musik Talempong Pacik dan Gandang Tambua', en: 'Collaborative Performances with Talempong and Tambua Percussion' },
+              { id: 'Konservasi Gerak Tari Pusaka Silungkang dan Talawi', en: 'Conservation of Indigenous Silungkang and Talawi Dance Repertoires' }
+            ],
+            tableData: [
+              {
+                no: 1,
+                description: { id: 'Kelas Tari Piring & Tari Pasambahan', en: 'Plate & Pasambahan Dance Classes' },
+                notes: { id: 'Tingkat Dasar & Mahir (Aktif)', en: 'Basic & Advanced Level (Active)' }
+              },
+              {
+                no: 2,
+                description: { id: 'Ensambel Musik Talempong Pacik', en: 'Talempong Pacik Ensemble' },
+                notes: { id: 'Latihan Rutin Rabu & Jumat Malam', en: 'Routine Rehearsal Wed & Fri Evening' }
+              },
+              {
+                no: 3,
+                description: { id: 'Protokoler Penyambutan Tamu Resmi', en: 'Official Guest Welcoming Protocol' },
+                notes: { id: 'Koordinasi Dinas Kebudayaan', en: 'Coordinated with Culture Dept' }
+              }
+            ],
+            leader: 'Ibu Ratna Juwita, S.Sn.',
+            location: { id: 'Kecamatan Talawi, Kota Sawahlunto', en: 'Talawi District, Sawahlunto' },
+            contact: '+62 813-9876-5432'
         },
         {
             id: '3',
-            title: { en: 'Tari Piring', id: 'Tari Piring' },
-            description: { en: 'The Plate Dance, a dynamic traditional dance where dancers hold plates in their hands.', id: 'Tari Piring, tarian tradisional dinamis di mana penari memegang piring di tangan mereka.' },
-            imageUrl: 'https://picsum.photos/400/300?random=art3'
+            title: { en: 'Javanese Heritage & Kuda Kepang Cultural Troupe', id: 'Paguyuban Seni Kuda Kepang & Karawitan Ombilin' },
+            category: { en: 'Multicultural Heritage Group', id: 'Paguyuban Akulturasi Budaya' },
+            date: 'Terdaftar & Aktif',
+            description: { 
+              en: 'A historic cultural troupe preserving the multicultural heritage of Javanese mining laborers (Orang Rantai) in Sawahlunto through traditional gamelan karawitan, shadow puppetry, and spirited Kuda Kepang dance.', 
+              id: 'Paguyuban kesenian yang merawat warisan akulturasi budaya pekerja tambang batubara (Orang Rantai) di Sawahlunto, melestarikan seni gamelan karawitan Jawa, wayang, dan tari Kuda Kepang.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&q=80&w=800',
+            listItems: [
+              { id: 'Latihan Bersama Musik Karawitan & Gamelan Jawa Tiap Pekan', en: 'Weekly Gamelan Karawitan Practice Sessions' },
+              { id: 'Pementasan Kuda Kepang Kolosal pada Peringatan Hari Jadi Kota Sawahlunto', en: 'Massive Kuda Kepang Performances at City Anniversary Celebrations' },
+              { id: 'Dokumentasi Sejarah Lisan Akulturasi Musik Pekerja Tambang Kolonial', en: 'Oral History & Ethnomusicology Documentation of Coal Mine Laborers' },
+              { id: 'Pelestarian Busana Adat, Reog, dan Piranti Musik Antargenerasi', en: 'Intergenerational Preservation of Costumes and Musical Instruments' }
+            ],
+            tableData: [
+              {
+                no: 1,
+                description: { id: 'Latihan Gamelan & Karawitan Jawa', en: 'Javanese Gamelan & Karawitan Practice' },
+                notes: { id: 'Malam Minggu di Gedung Pertemuan', en: 'Saturday Night at Community Hall' }
+              },
+              {
+                no: 2,
+                description: { id: 'Atraksi Seni Tari Kuda Kepang Kolosal', en: 'Massive Kuda Kepang Performance' },
+                notes: { id: 'Peringatan Hari Jadi Kota & Festival', en: 'City Anniversary & Festival Events' }
+              },
+              {
+                no: 3,
+                description: { id: 'Inventarisasi Busana & Piranti Adat', en: 'Costume & Heritage Instrument Care' },
+                notes: { id: 'Terawat 100% Asli Warisan Tambang', en: '100% Preserved Mining Heritage' }
+              }
+            ],
+            leader: 'Ki Sastro Hardjono',
+            location: { id: 'Kelurahan Saringan, Kota Sawahlunto', en: 'Saringan Village, Sawahlunto' },
+            contact: '+62 821-3456-7891'
+        },
+        {
+            id: '4',
+            title: { en: 'Silungkang Songket Weaving & Traditional Crafts Guild', id: 'Asosiasi Perajin Tenun Songket Silungkang' },
+            category: { en: 'Traditional Craft & Intangible Heritage', id: 'Lembaga Kriya & Warisan Takbenda' },
+            date: 'Terdaftar & Aktif',
+            description: { 
+              en: 'An artisan guild preserving the intricate art of handloom Songket Silungkang weaving, an internationally renowned intangible cultural heritage of Sawahlunto.', 
+              id: 'Lembaga perajin yang menaungi pelestarian seni tenun tangan Songket Silungkang warisan budaya takbenda Sawahlunto yang termasyhur dengan keanggunan motif benang emas dan perak.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&q=80&w=800',
+            listItems: [
+              { id: 'Pelatihan Tenun Tradisional Menggunakan Alat Tenun Bukan Mesin (ATBM)', en: 'Traditional Weaving Workshops using Non-Machine Hand Looms' },
+              { id: 'Dokumentasi & Konservasi Motif Kuno (Pucuak Rabuang, Saik Galamai, Kaluak Paku)', en: 'Documentation & Conservation of Heritage Motifs' },
+              { id: 'Pengembangan Sentra Galeri Edukasi & Wisata Tenun Budaya Silungkang', en: 'Educational Center & Cultural Weaving Tourism Development' },
+              { id: 'Pemberdayaan Ekonomi Kreatif Kaum Perempuan Pengrajin Lokal', en: 'Creative Economic Empowerment for Local Women Artisans' }
+            ],
+            tableData: [
+              {
+                no: 1,
+                description: { id: 'Pelatihan Tenun ATBM Tradisional', en: 'Traditional Handloom Weaving Workshop' },
+                notes: { id: 'Regenerasi Penenun Muda Berkelanjutan', en: 'Continuous Youth Weaver Training' }
+              },
+              {
+                no: 2,
+                description: { id: 'Konservasi Motif Kuno Silungkang', en: 'Silungkang Heritage Motif Conservation' },
+                notes: { id: 'Pucuak Rabuang, Kaluak Paku, Saik Galamai', en: 'Classic Motifs Cataloging' }
+              },
+              {
+                no: 3,
+                description: { id: 'Pusat Kurasi Produk & Galeri Budaya', en: 'Product Curation & Cultural Gallery' },
+                notes: { id: 'Buka Setiap Hari (08:30 - 17:00 WIB)', en: 'Open Daily (08:30 - 17:00)' }
+              }
+            ],
+            leader: 'Hj. Rosmini & Tim Perajin Silungkang',
+            location: { id: 'Kecamatan Silungkang, Kota Sawahlunto', en: 'Silungkang District, Sawahlunto' },
+            contact: '+62 852-6789-0123'
         }
     ]
   },
@@ -253,7 +383,7 @@ const defaultNavItems: NavItem[] = [
   { id: 'home', label: { en: 'Home', id: 'Beranda' }, href: '#hero' },
   { id: 'map', label: { en: 'Map', id: 'Peta' }, href: '#map' },
   { id: 'heritage', label: { en: 'Heritage', id: 'Warisan' }, href: '#heritage' },
-  { id: 'arts', label: { en: 'Arts', id: 'Kesenian' }, href: '#arts' },
+  { id: 'arts', label: { en: 'Cultural Institutions', id: 'Lembaga Kebudayaan' }, href: '#arts' },
   { id: 'destinations', label: { en: 'Destinations', id: 'Destinasi' }, href: '#destinations' },
   { id: 'tickets', label: { en: 'Tickets', id: 'Tiket' }, href: '#info' },
   { id: 'news', label: { en: 'News', id: 'Berita' }, href: '#news' },
@@ -263,9 +393,10 @@ const defaultNavItems: NavItem[] = [
 
 const defaultSocials: SocialLink[] = [
   { id: '1', platform: 'Instagram', url: 'https://instagram.com' },
-  { id: '2', platform: 'Facebook', url: 'https://facebook.com' },
-  { id: '3', platform: 'Twitter', url: 'https://twitter.com' },
-  { id: '4', platform: 'Youtube', url: 'https://youtube.com' }
+  { id: '2', platform: 'Twitter', url: 'https://x.com' },
+  { id: '3', platform: 'Facebook', url: 'https://facebook.com' },
+  { id: '4', platform: 'TikTok', url: 'https://tiktok.com' },
+  { id: '5', platform: 'Youtube', url: 'https://youtube.com' }
 ];
 
 const defaultMuseums: MuseumItem[] = [
@@ -413,7 +544,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [news, setNews] = useState<NewsItem[]>([]);
   const [newsConfig, setNewsConfig] = useState<NewsConfig>({ source: 'local', sheetUrl: '' });
   const [museums, setMuseums] = useState<MuseumItem[]>([]);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(defaultSocials);
   const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -501,18 +632,96 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (snapshot.empty) {
         const defaultAttractions: Attraction[] = [
           {
-            id: '1',
-            title: { en: 'Lubang Mbah Soero', id: 'Lubang Mbah Soero' },
-            category: 'History',
-            description: { en: 'Explore the historic underground coal mining tunnel.', id: 'Jelajahi terowongan tambang batubara bersejarah.' },
-            imageUrl: 'https://picsum.photos/600/400?random=1'
-          },
-          {
-            id: '2',
+            id: 'goedang-ransoem',
             title: { en: 'Museum Goedang Ransoem', id: 'Museum Goedang Ransoem' },
             category: 'History',
-            description: { en: 'The former public kitchen complex.', id: 'Kompleks dapur umum masa lampau.' },
-            imageUrl: 'https://picsum.photos/600/400?random=2'
+            description: { 
+              en: 'The legendary central steam-powered kitchen complex built in 1918 to feed thousands of coal miners and hospital patients.', 
+              id: 'Kompleks dapur umum uap raksasa masa kolonial (dibangun 1918) yang memasak ribuan porsi makanan setiap hari untuk para pekerja tambang dan pasien RS.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800',
+            images: [
+              'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1590059390046-562a1296b1d4?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800'
+            ],
+            location: { id: 'Kelurahan Air Dingin, Lembah Segar', en: 'Air Dingin, Lembah Segar' },
+            operatingHours: { id: '08.00 - 16.00 WIB', en: '08:00 AM - 04:00 PM' },
+            highlights: [
+              { id: 'Tungku uap raksasa buatan Jerman & Belanda', en: 'Giant German & Dutch steam kettles' },
+              { id: 'Koleksi peralatan masak kuno & foto arsip', en: 'Vintage culinary tools & archival photos' },
+              { id: 'Monumen Warisan Tambang Batubara Ombilin', en: 'Ombilin Coal Mining Heritage monument' }
+            ]
+          },
+          {
+            id: 'mbah-soero',
+            title: { en: 'Lubang Tambang Mbah Soero', id: 'Lubang Tambang Mbah Soero' },
+            category: 'History',
+            description: { 
+              en: 'Historic underground coal mining tunnel dating back to 1898, equipped with safety gear and guided historical narration.', 
+              id: 'Terowongan tambang batubara bawah tanah bersejarah era 1898 sepanjang ratusan meter, dilengkapi perlengkapan safety dan galeri edukasi tambang.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1509718443690-d8e2fb3474b7?auto=format&fit=crop&q=80&w=800',
+            images: [
+              'https://images.unsplash.com/photo-1509718443690-d8e2fb3474b7?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&q=80&w=800'
+            ],
+            location: { id: 'Tanah Lapang, Lembah Segar', en: 'Tanah Lapang, Lembah Segar' },
+            operatingHours: { id: '08.30 - 17.00 WIB', en: '08:30 AM - 05:00 PM' },
+            highlights: [
+              { id: 'Masuk ke dalam terowongan tambang bawah tanah asli', en: 'Explore authentic underground mining tunnels' },
+              { id: 'Gedung Info Box & Galeri Mbah Soero', en: 'Info Box center & Mbah Soero gallery' },
+              { id: 'Rompi & helm tambang standar keselamatan', en: 'Safety mining helmets and vest experience' }
+            ]
+          },
+          {
+            id: 'museum-kereta-api',
+            title: { en: 'Museum Kereta Api Sawahlunto', id: 'Museum Kereta Api Sawahlunto' },
+            category: 'History',
+            description: { 
+              en: 'The second oldest railway museum in Indonesia, home to the legendary steam locomotive Mak Itam (E1060).', 
+              id: 'Museum perkeretaapian tertua kedua di Indonesia, rumah bagi lokomotif uap legendaris bergigi Mak Itam (E1060) dan stasiun bersejarah.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1515263487990-61b07816b324?auto=format&fit=crop&q=80&w=800',
+            images: [
+              'https://images.unsplash.com/photo-1515263487990-61b07816b324?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=800'
+            ],
+            location: { id: 'Jl. Ahmad Yani, Pasar Remaja', en: 'Jl. Ahmad Yani, Pasar Remaja' },
+            operatingHours: { id: '08.00 - 16.30 WIB', en: '08:00 AM - 04:30 PM' },
+            highlights: [
+              { id: 'Lokomotif uap bergerigi legendaris Mak Itam (E1060)', en: 'Legendary Mak Itam steam cog engine (E1060)' },
+              { id: 'Koleksi lonceng, telegraf, dan sinyal mekanik kuno', en: 'Vintage bells, telegraphs, and mechanical signals' },
+              { id: 'Bangunan stasiun kolonial asli tahun 1918', en: 'Authentic 1918 colonial station architecture' }
+            ]
+          },
+          {
+            id: 'galeri-kebudayaan',
+            title: { en: 'Galeri Seni & Museum Kebudayaan', id: 'Museum & Galeri Budaya Sawahlunto' },
+            category: 'Culture',
+            description: { 
+              en: 'Curated exhibition spaces showcasing paintings, archival photographs, mining documents, and Minangkabau ethnographic treasures.', 
+              id: 'Ruang pameran kuratorial yang memamerkan lukisan seni rupa, foto arsip kota tua, manuskrip tambang, dan pusaka etnografi Minangkabau.' 
+            },
+            imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800',
+            images: [
+              'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&q=80&w=800',
+              'https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&q=80&w=800'
+            ],
+            location: { id: 'Kawasan Kota Tua Sawahlunto', en: 'Sawahlunto Old Town Zone' },
+            operatingHours: { id: '09.00 - 17.00 WIB', en: '09:00 AM - 05:00 PM' },
+            highlights: [
+              { id: 'Pameran lukisan maestro & seniman Sawahlunto', en: 'Master paintings & local Sawahlunto artists' },
+              { id: 'Dokumentasi arsip kota warisan dunia UNESCO', en: 'UNESCO world heritage archive documentation' },
+              { id: 'Koleksi busana tenun songket Silungkang pusaka', en: 'Silungkang handwoven songket heritage textiles' }
+            ]
           }
         ];
         if (currentUser?.role === 'admin') {
@@ -548,6 +757,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         const data: SocialLink[] = [];
         snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() } as SocialLink));
+        if (!data.some(d => d.platform?.toLowerCase() === 'tiktok')) {
+          data.push({ id: 'tiktok-link', platform: 'TikTok', url: 'https://tiktok.com' });
+        }
         setSocialLinks(data);
       }
     }, (error) => handleFirestoreError(error, OperationType.GET, 'socialLinks'));

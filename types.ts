@@ -104,7 +104,11 @@ export interface Attraction {
   title: LocalizedText;
   description: LocalizedText;
   imageUrl: string;
-  category: 'History' | 'Nature' | 'Culture';
+  images?: string[];
+  category: 'History' | 'Nature' | 'Culture' | string;
+  location?: LocalizedText;
+  operatingHours?: LocalizedText;
+  highlights?: LocalizedText[];
 }
 
 export interface HeroSlide {
@@ -116,11 +120,26 @@ export interface HeroSlide {
   bgImageUrl: string;
 }
 
+export interface ArtTableRow {
+  id?: string;
+  no?: string | number;
+  description: LocalizedText;
+  notes?: LocalizedText;
+}
+
 export interface ArtItem {
   id: string;
   title: LocalizedText;
+  category?: LocalizedText;
+  date?: string;
   description: LocalizedText;
   imageUrl: string;
+  listItems?: LocalizedText[];
+  tableData?: ArtTableRow[];
+  leader?: string;
+  location?: LocalizedText;
+  contact?: string;
+  imageUrls?: string[];
 }
 
 export interface SiteContent {
