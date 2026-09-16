@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useData } from '../contexts/DataContext';
+import { LocalizedText } from '../types';
 import { 
   X, Plus, Trash2, Edit2, Globe, Palette, Users, FileText, Music, Instagram, 
   Phone, Ticket, MapPin, Navigation, Layout, User as UserIcon, Key, 
@@ -241,6 +242,23 @@ const AdminPanel: React.FC = () => {
 
   // --- COMPONENT HELPERS ---
 
+  const getLoc = (text: any, lang: 'id' | 'en' = 'id'): string => {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    return text[lang] ?? text.id ?? text.en ?? '';
+  };
+
+  const setLoc = (text: any, val: string, lang: 'id' | 'en' = 'id'): LocalizedText => {
+    const base = (typeof text === 'object' && text !== null)
+      ? text
+      : { en: typeof text === 'string' ? text : '', id: typeof text === 'string' ? text : '' };
+    return {
+      en: base.en ?? '',
+      id: base.id ?? '',
+      [lang]: val
+    };
+  };
+
   const SectionHeader = ({ icon: Icon, title, subtitle }: any) => (
     <div className="mb-10">
       <div className="flex items-center gap-4 mb-3">
@@ -254,12 +272,33 @@ const AdminPanel: React.FC = () => {
     </div>
   );
 
-  const FormActions = ({ id, onCancel }: { id: string, onCancel?: () => void }) => (
-    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-slate-200 p-4 -mx-6 -mb-6 mt-6 flex items-center justify-end gap-3 z-10 rounded-b-2xl">
-      <button onClick={onCancel || handleCancel} className="px-4 py-2 rounded-lg font-medium text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">{t.cancel[language]}</button>
-      <button onClick={() => triggerSaveFeedback(id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm ${saveStatus[id] ? 'bg-emerald-600 text-white cursor-default' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>{saveStatus[id] ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}{saveStatus[id] ? t.saved[language] : t.save[language]}</button>
-    </div>
-  );
+  const FormActions = ({ id, onCancel, onSave }: { id: string, onCancel?: () => void, onSave?: () => Promise<void> | void }) => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
+      setIsSaving(true);
+      try {
+        if (onSave) {
+          await onSave();
+        }
+      } catch (err) {
+        console.error('Save error:', err);
+      } finally {
+        setIsSaving(false);
+        triggerSaveFeedback(id);
+      }
+    };
+
+    return (
+      <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-slate-200 p-4 -mx-6 -mb-6 mt-6 flex items-center justify-end gap-3 z-10 rounded-b-2xl">
+        <button type="button" onClick={onCancel || handleCancel} className="px-4 py-2 rounded-lg font-medium text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">{t.cancel[language]}</button>
+        <button type="button" onClick={handleSave} disabled={isSaving} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm ${saveStatus[id] ? 'bg-emerald-600 text-white cursor-default' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
+          {saveStatus[id] ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+          {saveStatus[id] ? t.saved[language] : (isSaving ? 'Menyimpan...' : t.save[language])}
+        </button>
+      </div>
+    );
+  };
 
   const sidebarLinks = [
     { id: 'general', label: 'Identitas', icon: Globe },
@@ -366,7 +405,7 @@ const AdminPanel: React.FC = () => {
                 <div className="space-y-12 animate-fade-in">
                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
                       <SectionHeader icon={Layers} title="Hero Slider" subtitle="Halaman Depan" />
-                      <button onClick={() => addHeroSlide({ id: Date.now().toString(), subtitle: {en:'New Slide', id:'Slide Baru'}, title: {en:'Title', id:'Judul'}, description: {en:'',id:''}, cta: {en:'Explore', id:'Jelajahi'}, bgImageUrl: 'https://picsum.photos/1920/1080' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Slide</button>
+                      <button onClick={() => addHeroSlide({ id: Date.now().toString(), subtitle: {en:'New Slide', id:'Slide Baru'}, title: {en:'Title', id:'Judul'}, description: {en:'',id:''}, cta: {en:'Explore', id:'Jelajahi'}, bgImageUrl: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&q=80&w=1920' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Slide</button>
                    </div>
                    <div className="grid gap-8">
                      {content.hero.slides.map((slide, idx) => (
@@ -386,15 +425,15 @@ const AdminPanel: React.FC = () => {
                              <div className="space-y-4">
                                 <div className="space-y-2">
                                    <label className="input-label">Title (ID)</label>
-                                   <input type="text" value={slide.title.id} onChange={(e) => updateHeroSlide(slide.id, {...slide, title: {...slide.title, id: e.target.value}})} className="input-field font-bold" />
+                                   <input type="text" value={getLoc(slide.title, 'id')} onChange={(e) => updateHeroSlide(slide.id, {...slide, title: setLoc(slide.title, e.target.value, 'id')})} className="input-field font-bold" />
                                 </div>
                                 <div className="space-y-2">
                                    <label className="input-label">Description (ID)</label>
-                                   <textarea value={slide.description.id} onChange={(e) => updateHeroSlide(slide.id, {...slide, description: {...slide.description, id: e.target.value}})} className="input-field min-h-[80px]" />
+                                   <textarea value={getLoc(slide.description, 'id')} onChange={(e) => updateHeroSlide(slide.id, {...slide, description: setLoc(slide.description, e.target.value, 'id')})} className="input-field min-h-[80px]" />
                                 </div>
                              </div>
                           </div>
-                          <FormActions id={`hero-${slide.id}`} />
+                          <FormActions id={`hero-${slide.id}`} onSave={() => updateHeroSlide(slide.id, slide)} />
                        </div>
                      ))}
                    </div>
@@ -413,7 +452,7 @@ const AdminPanel: React.FC = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                            <div className="space-y-2">
                               <label className="input-label">Judul Seksi (ID)</label>
-                              <input type="text" value={content.history.title.id} onChange={(e) => updateContent('history', 'title', e.target.value, 'id')} className="input-field" />
+                              <input type="text" value={getLoc(content.history.title, 'id')} onChange={(e) => updateContent('history', 'title', e.target.value, 'id')} className="input-field" />
                            </div>
                            <div className="space-y-2">
                               <label className="input-label">Image URL</label>
@@ -426,11 +465,11 @@ const AdminPanel: React.FC = () => {
                         </div>
                         <div className="space-y-2">
                            <label className="input-label">Deskripsi Paragraf 1 (ID)</label>
-                           <textarea value={content.history.description1.id} onChange={(e) => updateContent('history', 'description1', e.target.value, 'id')} className="input-field min-h-[100px]" />
+                           <textarea value={getLoc(content.history.description1, 'id')} onChange={(e) => updateContent('history', 'description1', e.target.value, 'id')} className="input-field min-h-[100px]" />
                         </div>
                         <div className="space-y-2">
                            <label className="input-label">Deskripsi Paragraf 2 (ID)</label>
-                           <textarea value={content.history.description2.id} onChange={(e) => updateContent('history', 'description2', e.target.value, 'id')} className="input-field min-h-[100px]" />
+                           <textarea value={getLoc(content.history.description2, 'id')} onChange={(e) => updateContent('history', 'description2', e.target.value, 'id')} className="input-field min-h-[100px]" />
                         </div>
                      </div>
                      <FormActions id="history-save" />
@@ -443,7 +482,7 @@ const AdminPanel: React.FC = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                            <div className="space-y-2">
                               <label className="input-label">Judul Seksi (ID)</label>
-                              <input type="text" value={content.culture.title.id} onChange={(e) => updateContent('culture', 'title', e.target.value, 'id')} className="input-field" />
+                              <input type="text" value={getLoc(content.culture.title, 'id')} onChange={(e) => updateContent('culture', 'title', e.target.value, 'id')} className="input-field" />
                            </div>
                            <div className="space-y-2">
                               <label className="input-label">Image URL</label>
@@ -456,7 +495,7 @@ const AdminPanel: React.FC = () => {
                         </div>
                         <div className="space-y-2">
                            <label className="input-label">Deskripsi (ID)</label>
-                           <textarea value={content.culture.description.id} onChange={(e) => updateContent('culture', 'description', e.target.value, 'id')} className="input-field min-h-[100px]" />
+                           <textarea value={getLoc(content.culture.description, 'id')} onChange={(e) => updateContent('culture', 'description', e.target.value, 'id')} className="input-field min-h-[100px]" />
                         </div>
                      </div>
                      <FormActions id="culture-save" />
@@ -478,12 +517,12 @@ const AdminPanel: React.FC = () => {
                              <div className="space-y-6">
                                 <div className="space-y-2 pr-10">
                                    <label className="input-label">Nama Museum (ID)</label>
-                                   <input type="text" value={m.name.id} onChange={(e) => updateMuseum(m.id, {...m, name: {...m.name, id: e.target.value}})} className="input-field font-bold text-lg" />
+                                   <input type="text" value={getLoc(m.name, 'id')} onChange={(e) => updateMuseum(m.id, {...m, name: setLoc(m.name, e.target.value, 'id')})} className="input-field font-bold text-lg" />
                                 </div>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                    <div className="space-y-2">
                                       <label className="input-label">Google Maps Query</label>
-                                      <input type="text" value={m.embedQuery} onChange={(e) => updateMuseum(m.id, {...m, embedQuery: e.target.value})} className="input-field font-mono text-xs" />
+                                      <input type="text" value={m.embedQuery || ''} onChange={(e) => updateMuseum(m.id, {...m, embedQuery: e.target.value})} className="input-field font-mono text-xs" />
                                    </div>
                                    <div className="space-y-2">
                                       <label className="input-label">Street View URL (Embed)</label>
@@ -492,7 +531,7 @@ const AdminPanel: React.FC = () => {
                                 </div>
                                 <div className="space-y-2">
                                    <label className="input-label">Deskripsi Singkat (ID)</label>
-                                   <textarea value={m.description.id} onChange={(e) => updateMuseum(m.id, {...m, description: {...m.description, id: e.target.value}})} className="input-field h-20" />
+                                   <textarea value={getLoc(m.description, 'id')} onChange={(e) => updateMuseum(m.id, {...m, description: setLoc(m.description, e.target.value, 'id')})} className="input-field h-20" />
                                 </div>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                    <div className="space-y-2">
@@ -506,11 +545,11 @@ const AdminPanel: React.FC = () => {
                                 </div>
                                 <div className="space-y-2">
                                    <label className="input-label flex items-center gap-2"><Target className="w-3 h-3 text-heritage-gold" /> Visi Museum (ID)</label>
-                                   <textarea value={m.vision?.id || ''} onChange={(e) => updateMuseum(m.id, {...m, vision: {...(m.vision || {en: '', id: ''}), id: e.target.value}})} className="input-field h-20 italic font-serif" placeholder="Visi museum..." />
+                                   <textarea value={getLoc(m.vision, 'id')} onChange={(e) => updateMuseum(m.id, {...m, vision: setLoc(m.vision, e.target.value, 'id')})} className="input-field h-20 italic font-serif" placeholder="Visi museum..." />
                                 </div>
                                 <div className="space-y-2">
                                    <label className="input-label">Misi Museum (ID)</label>
-                                   <textarea value={m.mission?.id || ''} onChange={(e) => updateMuseum(m.id, {...m, mission: {...(m.mission || {en: '', id: ''}), id: e.target.value}})} className="input-field h-24" placeholder="Misi museum..." />
+                                   <textarea value={getLoc(m.mission, 'id')} onChange={(e) => updateMuseum(m.id, {...m, mission: setLoc(m.mission, e.target.value, 'id')})} className="input-field h-24" placeholder="Misi museum..." />
                                 </div>
                                 
                                 {/* Ticket Prices Section */}
@@ -527,22 +566,20 @@ const AdminPanel: React.FC = () => {
                                          <div key={tp.id} className="flex gap-4 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
                                             <div className="flex-1 space-y-1">
                                                <label className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">Kategori Usia (ID)</label>
-                                               <input type="text" value={tp.category.id} onChange={(e) => {
-                                                  const newPrices = [...m.ticketPrices];
-                                                  newPrices[idx].category.id = e.target.value;
+                                               <input type="text" value={getLoc(tp.category, 'id')} onChange={(e) => {
+                                                  const newPrices = (m.ticketPrices || []).map(p => p.id === tp.id ? {...p, category: setLoc(p.category, e.target.value, 'id')} : p);
                                                   updateMuseum(m.id, {...m, ticketPrices: newPrices});
                                                }} className="input-field py-2 text-sm" placeholder="Contoh: Dewasa (>12 tahun)" />
                                             </div>
                                             <div className="flex-1 space-y-1">
                                                <label className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">Harga (Rp)</label>
                                                <input type="number" value={tp.price} onChange={(e) => {
-                                                  const newPrices = [...m.ticketPrices];
-                                                  newPrices[idx].price = parseInt(e.target.value) || 0;
+                                                  const newPrices = (m.ticketPrices || []).map(p => p.id === tp.id ? {...p, price: parseInt(e.target.value) || 0} : p);
                                                   updateMuseum(m.id, {...m, ticketPrices: newPrices});
                                                }} className="input-field py-2 text-sm" />
                                             </div>
                                             <button onClick={() => {
-                                               const newPrices = m.ticketPrices.filter(p => p.id !== tp.id);
+                                               const newPrices = (m.ticketPrices || []).filter(p => p.id !== tp.id);
                                                updateMuseum(m.id, {...m, ticketPrices: newPrices});
                                             }} className="p-2 text-gray-400 hover:text-red-500 mt-4"><Trash2 className="w-4 h-4" /></button>
                                          </div>
@@ -553,7 +590,7 @@ const AdminPanel: React.FC = () => {
                                    </div>
                                 </div>
                              </div>
-                             <FormActions id={`map-${m.id}`} />
+                             <FormActions id={`map-${m.id}`} onSave={() => updateMuseum(m.id, m)} />
                          </div>
                       ))}
                    </div>
@@ -565,36 +602,36 @@ const AdminPanel: React.FC = () => {
                  <div className="space-y-12 animate-fade-in">
                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
                       <SectionHeader icon={MousePointerClick} title="Portal Eksternal" subtitle="Link & Referensi" />
-                      <button onClick={() => addExternalLink({ id: Date.now().toString(), title: {en:'New Link', id:'Link Baru'}, description: {en:'',id:''}, url: '#', imageUrl: 'https://picsum.photos/600/300', buttonText: {en:'Visit', id:'Kunjungi'} })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Portal</button>
+                      <button onClick={() => addExternalLink({ id: Date.now().toString(), title: {en:'New Link', id:'Link Baru'}, description: {en:'',id:''}, url: '#', imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600', buttonText: {en:'Visit', id:'Kunjungi'} })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Portal</button>
                    </div>
                    <div className="grid gap-8">
                       {externalLinks.map(link => (
                          <div key={link.id} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row gap-6 hover:shadow-lg transition-all relative">
                             <button onClick={() => deleteExternalLink(link.id)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 z-10"><Trash2 className="w-4 h-4" /></button>
                             <div className="w-full md:w-48 space-y-3">
-                               <div className="h-32 rounded-2xl overflow-hidden border-2 border-slate-100"><img src={link.imageUrl} className="w-full h-full object-cover" /></div>
-                               <input type="text" value={link.imageUrl} onChange={(e) => updateExternalLink(link.id, {...link, imageUrl: e.target.value})} className="input-field text-[10px]" placeholder="Image URL" />
+                               <div className="h-32 rounded-2xl overflow-hidden border-2 border-slate-100"><img src={link.imageUrl} className="w-full h-full object-cover" alt="" /></div>
+                               <input type="text" value={link.imageUrl || ''} onChange={(e) => updateExternalLink(link.id, {...link, imageUrl: e.target.value})} className="input-field text-[10px]" placeholder="Image URL" />
                             </div>
                             <div className="flex-1 space-y-4">
                                <div className="space-y-2">
                                   <label className="input-label">Judul (ID)</label>
-                                  <input type="text" value={link.title.id} onChange={(e) => updateExternalLink(link.id, {...link, title: {...link.title, id: e.target.value}})} className="input-field font-bold" />
-                               </div>
+                                  <input type="text" value={getLoc(link.title, 'id')} onChange={(e) => updateExternalLink(link.id, {...link, title: setLoc(link.title, e.target.value, 'id')})} className="input-field font-bold" />
+                                </div>
                                <div className="space-y-2">
                                   <label className="input-label">Deskripsi (ID)</label>
-                                  <textarea value={link.description.id} onChange={(e) => updateExternalLink(link.id, {...link, description: {...link.description, id: e.target.value}})} className="input-field h-20" />
+                                  <textarea value={getLoc(link.description, 'id')} onChange={(e) => updateExternalLink(link.id, {...link, description: setLoc(link.description, e.target.value, 'id')})} className="input-field h-20" />
                                </div>
                                <div className="flex gap-4">
                                   <div className="flex-1 space-y-2">
                                      <label className="input-label">Target URL</label>
-                                     <input type="text" value={link.url} onChange={(e) => updateExternalLink(link.id, {...link, url: e.target.value})} className="input-field font-mono text-xs" />
+                                     <input type="text" value={link.url || ''} onChange={(e) => updateExternalLink(link.id, {...link, url: e.target.value})} className="input-field font-mono text-xs" placeholder="https://..." />
                                   </div>
                                   <div className="w-1/3 space-y-2">
                                      <label className="input-label">Label Tombol (ID)</label>
-                                     <input type="text" value={link.buttonText.id} onChange={(e) => updateExternalLink(link.id, {...link, buttonText: {...link.buttonText, id: e.target.value}})} className="input-field" />
+                                     <input type="text" value={getLoc(link.buttonText, 'id')} onChange={(e) => updateExternalLink(link.id, {...link, buttonText: setLoc(link.buttonText, e.target.value, 'id')})} className="input-field" />
                                   </div>
                                </div>
-                               <FormActions id={`portal-${link.id}`} />
+                               <FormActions id={`portal-${link.id}`} onSave={() => updateExternalLink(link.id, link)} />
                             </div>
                          </div>
                       ))}
@@ -607,7 +644,7 @@ const AdminPanel: React.FC = () => {
                 <div className="space-y-12 animate-fade-in">
                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
                       <SectionHeader icon={Music} title="Seni & Pertunjukan" subtitle="Aset Budaya" />
-                      <button onClick={() => addArtItem({ id: Date.now().toString(), title: {en:'New Performance', id:'Seni Baru'}, description: {en:'',id:''}, imageUrl: 'https://picsum.photos/400/300' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Aset</button>
+                      <button onClick={() => addArtItem({ id: Date.now().toString(), title: {en:'New Performance', id:'Seni Baru'}, description: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Aset</button>
                    </div>
                    
                    <div className="grid grid-cols-1 gap-8">
@@ -623,17 +660,17 @@ const AdminPanel: React.FC = () => {
                            <div className="flex-1 space-y-6">
                               <div className="pr-10">
                                   <label className="input-label mb-2">Nama Kesenian (ID)</label>
-                                  <input type="text" value={art.title.id} onChange={(e) => updateArtItem(art.id, {...art, title: {...art.title, id: e.target.value}})} className="bg-transparent font-serif font-bold text-xl text-black focus:outline-none w-full border-b border-transparent focus:border-heritage-gold/50 transition-colors pb-1" placeholder="Nama Kesenian..." />
+                                  <input type="text" value={getLoc(art.title, 'id')} onChange={(e) => updateArtItem(art.id, {...art, title: setLoc(art.title, e.target.value, 'id')})} className="bg-transparent font-serif font-bold text-xl text-black focus:outline-none w-full border-b border-transparent focus:border-heritage-gold/50 transition-colors pb-1" placeholder="Nama Kesenian..." />
                               </div>
                               <div className="space-y-2">
                                   <label className="input-label">Deskripsi (ID)</label>
-                                  <textarea value={art.description.id} onChange={(e) => updateArtItem(art.id, {...art, description: {...art.description, id: e.target.value}})} className="input-field text-sm min-h-[100px]" placeholder="Jelaskan tentang aset ini..." />
+                                  <textarea value={getLoc(art.description, 'id')} onChange={(e) => updateArtItem(art.id, {...art, description: setLoc(art.description, e.target.value, 'id')})} className="input-field text-sm min-h-[100px]" placeholder="Jelaskan tentang aset ini..." />
                               </div>
                               <div className="space-y-2">
                                   <label className="input-label">URL Gambar</label>
-                                  <input type="text" value={art.imageUrl} onChange={(e) => updateArtItem(art.id, {...art, imageUrl: e.target.value})} className="input-field font-mono text-xs" placeholder="https://..." />
+                                  <input type="text" value={art.imageUrl || ''} onChange={(e) => updateArtItem(art.id, {...art, imageUrl: e.target.value})} className="input-field font-mono text-xs" placeholder="https://..." />
                               </div>
-                              <FormActions id={`art-${art.id}`} />
+                              <FormActions id={`art-${art.id}`} onSave={() => updateArtItem(art.id, art)} />
                            </div>
                         </div>
                       ))}
@@ -646,7 +683,7 @@ const AdminPanel: React.FC = () => {
                 <div className="space-y-12 animate-fade-in">
                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
                       <SectionHeader icon={Instagram} title="Media & Artikel" subtitle="Distribusi Konten" />
-                      <button onClick={() => addNews({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], title: {en:'New Article', id:'Berita Baru'}, summary: {en:'',id:''}, content: {en:'',id:''}, imageUrl: 'https://picsum.photos/400/300', imageUrls: [] })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Artikel</button>
+                      <button onClick={() => addNews({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], title: {en:'New Article', id:'Berita Baru'}, summary: {en:'',id:''}, content: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=400', imageUrls: [] })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Artikel</button>
                    </div>
                    
                    <div className="space-y-8">
@@ -663,19 +700,19 @@ const AdminPanel: React.FC = () => {
                               <div className="flex-1 space-y-6">
                                  <div className="space-y-2">
                                     <label className="input-label">Judul Artikel (ID)</label>
-                                    <input type="text" value={item.title.id} onChange={(e) => updateNews(item.id, {...item, title: {...item.title, id: e.target.value}})} className="input-field font-serif font-bold text-xl !bg-transparent !border-0 !p-0 focus:ring-0 shadow-none" placeholder="Tulis judul disini..." />
+                                    <input type="text" value={getLoc(item.title, 'id')} onChange={(e) => updateNews(item.id, {...item, title: setLoc(item.title, e.target.value, 'id')})} className="input-field font-serif font-bold text-xl !bg-transparent !border-0 !p-0 focus:ring-0 shadow-none" placeholder="Tulis judul disini..." />
                                  </div>
                                  <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                        <label className="input-label">Tanggal</label>
                                        <div className="relative">
                                           <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
-                                          <input type="date" value={item.date} onChange={(e) => updateNews(item.id, {...item, date: e.target.value})} className="input-field pl-11 py-3 text-xs" />
+                                          <input type="date" value={item.date || ''} onChange={(e) => updateNews(item.id, {...item, date: e.target.value})} className="input-field pl-11 py-3 text-xs" />
                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                        <label className="input-label">URL Gambar</label>
-                                       <input type="text" value={item.imageUrl} onChange={(e) => updateNews(item.id, {...item, imageUrl: e.target.value})} className="input-field font-mono text-[10px]" />
+                                       <input type="text" value={item.imageUrl || ''} onChange={(e) => updateNews(item.id, {...item, imageUrl: e.target.value})} className="input-field font-mono text-[10px]" />
                                     </div>
                                  </div>
                               </div>
@@ -683,14 +720,14 @@ const AdminPanel: React.FC = () => {
                            <div className="space-y-6 pt-8 border-t border-slate-50">
                               <div className="space-y-2">
                                  <label className="input-label">Ringkasan</label>
-                                 <textarea value={item.summary.id} onChange={(e) => updateNews(item.id, {...item, summary: {...item.summary, id: e.target.value}})} className="input-field text-sm min-h-[80px]" />
+                                 <textarea value={getLoc(item.summary, 'id')} onChange={(e) => updateNews(item.id, {...item, summary: setLoc(item.summary, e.target.value, 'id')})} className="input-field text-sm min-h-[80px]" />
                               </div>
                               <div className="space-y-2">
                                  <label className="input-label">Konten Lengkap</label>
-                                 <textarea value={item.content.id} onChange={(e) => updateNews(item.id, {...item, content: {...item.content, id: e.target.value}})} className="input-field text-sm min-h-[150px]" />
+                                 <textarea value={getLoc(item.content, 'id')} onChange={(e) => updateNews(item.id, {...item, content: setLoc(item.content, e.target.value, 'id')})} className="input-field text-sm min-h-[150px]" />
                               </div>
                            </div>
-                           <FormActions id={`news-${item.id}`} />
+                           <FormActions id={`news-${item.id}`} onSave={() => updateNews(item.id, item)} />
                         </div>
                       ))}
                    </div>
@@ -702,7 +739,7 @@ const AdminPanel: React.FC = () => {
                  <div className="space-y-12 animate-fade-in">
                     <div className="flex justify-between items-end border-b border-slate-200/60 pb-10">
                        <SectionHeader icon={MapPin} title="Destinasi Wisata" subtitle="Objek Unggulan" />
-                       <button onClick={() => addAttraction({ id: Date.now().toString(), title: {en:'New Spot', id:'Wisata Baru'}, description: {en:'',id:''}, imageUrl: 'https://picsum.photos/600/400', category: 'History' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Destinasi</button>
+                       <button onClick={() => addAttraction({ id: Date.now().toString(), title: {en:'New Spot', id:'Wisata Baru'}, description: {en:'',id:''}, imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=600', category: 'History' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Destinasi</button>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                        {attractions.map(att => (
@@ -710,16 +747,16 @@ const AdminPanel: React.FC = () => {
                              <button onClick={() => deleteAttraction(att.id)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 z-10"><Trash2 className="w-4 h-4" /></button>
                              <div className="space-y-6">
                                 <div className="h-48 rounded-2xl overflow-hidden border-2 border-slate-50 relative group">
-                                   <img src={att.imageUrl} className="w-full h-full object-cover" />
+                                   <img src={att.imageUrl} className="w-full h-full object-cover" alt="" />
                                    <div className="absolute inset-x-0 bottom-0 bg-white/90 p-2">
-                                      <input type="text" value={att.imageUrl} onChange={(e) => updateAttraction(att.id, {...att, imageUrl: e.target.value})} className="w-full bg-transparent text-[10px] font-mono border-none focus:ring-0 p-0 text-center" placeholder="Image URL" />
+                                      <input type="text" value={att.imageUrl || ''} onChange={(e) => updateAttraction(att.id, {...att, imageUrl: e.target.value})} className="w-full bg-transparent text-[10px] font-mono border-none focus:ring-0 p-0 text-center" placeholder="Image URL" />
                                    </div>
                                 </div>
                                 <div className="space-y-4">
                                    <div className="flex gap-4">
                                       <div className="flex-1 space-y-2">
                                          <label className="input-label">Nama Destinasi (ID)</label>
-                                         <input type="text" value={att.title.id} onChange={(e) => updateAttraction(att.id, {...att, title: {...att.title, id: e.target.value}})} className="input-field font-bold" />
+                                         <input type="text" value={getLoc(att.title, 'id')} onChange={(e) => updateAttraction(att.id, {...att, title: setLoc(att.title, e.target.value, 'id')})} className="input-field font-bold" />
                                       </div>
                                       <div className="w-1/3 space-y-2">
                                          <label className="input-label">Kategori</label>
@@ -732,10 +769,10 @@ const AdminPanel: React.FC = () => {
                                    </div>
                                    <div className="space-y-2">
                                       <label className="input-label">Deskripsi (ID)</label>
-                                      <textarea value={att.description.id} onChange={(e) => updateAttraction(att.id, {...att, description: {...att.description, id: e.target.value}})} className="input-field h-24" />
+                                      <textarea value={getLoc(att.description, 'id')} onChange={(e) => updateAttraction(att.id, {...att, description: setLoc(att.description, e.target.value, 'id')})} className="input-field h-24" />
                                    </div>
                                 </div>
-                                <FormActions id={`att-${att.id}`} />
+                                <FormActions id={`att-${att.id}`} onSave={() => updateAttraction(att.id, att)} />
                              </div>
                           </div>
                        ))}
@@ -753,7 +790,7 @@ const AdminPanel: React.FC = () => {
                        <h4 className="font-serif text-lg font-bold mb-6">Jam Operasional</h4>
                        <div className="space-y-2">
                           <label className="input-label">Teks Jam Buka (ID)</label>
-                          <input type="text" value={content.tickets.openingHours.id} onChange={(e) => updateContent('tickets', 'openingHours', e.target.value, 'id')} className="input-field text-lg" />
+                          <input type="text" value={getLoc(content.tickets.openingHours, 'id')} onChange={(e) => updateContent('tickets', 'openingHours', e.target.value, 'id')} className="input-field text-lg" />
                        </div>
                        <FormActions id="hours-save" />
                     </div>
@@ -782,7 +819,7 @@ const AdminPanel: React.FC = () => {
                           </div>
                         ))}
                     </div>
-                    <FormActions id="theme" />
+                    <FormActions id="theme" onSave={() => updateTheme(content.theme)} />
                   </div>
                 </div>
               )}
@@ -795,26 +832,26 @@ const AdminPanel: React.FC = () => {
                       <div className="space-y-10">
                          <div className="space-y-4">
                             <label className="input-label flex items-center gap-3"><Target className="w-4 h-4 text-heritage-gold" /> Visi Institusi</label>
-                            <textarea value={content.organization.vision.id} onChange={(e) => updateContent('organization', 'vision', e.target.value, 'id')} className="input-field italic font-serif text-xl py-8 bg-[#FBFBFC] border-slate-100 focus:bg-white leading-relaxed text-center" />
+                            <textarea value={getLoc(content.organization.vision, 'id')} onChange={(e) => updateContent('organization', 'vision', e.target.value, 'id')} className="input-field italic font-serif text-xl py-8 bg-[#FBFBFC] border-slate-100 focus:bg-white leading-relaxed text-center" />
                          </div>
                          <div className="h-[1px] bg-slate-100 w-1/2 mx-auto"></div>
                          <div className="space-y-4">
                             <label className="input-label">Misi & Tujuan</label>
-                            <textarea value={content.organization.mission.id} onChange={(e) => updateContent('organization', 'mission', e.target.value, 'id')} className="input-field min-h-[160px] leading-relaxed p-6" />
+                            <textarea value={getLoc(content.organization.mission, 'id')} onChange={(e) => updateContent('organization', 'mission', e.target.value, 'id')} className="input-field min-h-[160px] leading-relaxed p-6" />
                          </div>
                          <div className="h-[1px] bg-slate-100 w-full"></div>
                          <div className="space-y-4">
                             <label className="input-label">Struktur Eksekutif (URL Gambar)</label>
                             <div className="flex flex-col sm:flex-row gap-4 items-start">
-                               <input type="text" value={content.organization.structureImageUrl} onChange={(e) => updateContent('organization', 'structureImageUrl', e.target.value)} className="input-field flex-1" placeholder="https://..." />
+                               <input type="text" value={content.organization.structureImageUrl || ''} onChange={(e) => updateContent('organization', 'structureImageUrl', e.target.value)} className="input-field flex-1" placeholder="https://..." />
                                <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                                   {content.organization.structureImageUrl ? <img src={content.organization.structureImageUrl} className="max-w-full max-h-full object-contain p-2" /> : <Users className="w-6 h-6 text-slate-400" />}
-                               </div>
+                                </div>
                             </div>
                          </div>
                          <div className="space-y-4">
                              <label className="input-label">Profil Dinas Lengkap (Untuk Modal)</label>
-                             <textarea value={content.organization.profile.id} onChange={(e) => updateContent('organization', 'profile', e.target.value, 'id')} className="input-field min-h-[120px]" />
+                             <textarea value={getLoc(content.organization.profile, 'id')} onChange={(e) => updateContent('organization', 'profile', e.target.value, 'id')} className="input-field min-h-[120px]" />
                          </div>
                       </div>
                       <FormActions id="org-save" />
@@ -911,51 +948,53 @@ const AdminPanel: React.FC = () => {
                         <div className="grid gap-6">
                             <div className="space-y-2">
                                 <label className="input-label">Alamat Lengkap</label>
-                                <input type="text" value={content.contact.address} onChange={(e) => updateContent('contact', 'address', e.target.value)} className="input-field" />
+                                <input type="text" value={content.contact.address || ''} onChange={(e) => updateContent('contact', 'address', e.target.value)} className="input-field" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="input-label">Telepon</label>
-                                    <input type="text" value={content.contact.phone} onChange={(e) => updateContent('contact', 'phone', e.target.value)} className="input-field" />
+                                    <input type="text" value={content.contact.phone || ''} onChange={(e) => updateContent('contact', 'phone', e.target.value)} className="input-field" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="input-label">Email</label>
-                                    <input type="text" value={content.contact.email} onChange={(e) => updateContent('contact', 'email', e.target.value)} className="input-field" />
+                                    <input type="text" value={content.contact.email || ''} onChange={(e) => updateContent('contact', 'email', e.target.value)} className="input-field" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="input-label">Google Maps Embed URL</label>
-                                <input type="text" value={content.contact.mapEmbedUrl} onChange={(e) => updateContent('contact', 'mapEmbedUrl', e.target.value)} className="input-field font-mono text-xs" />
+                                <input type="text" value={content.contact.mapEmbedUrl || ''} onChange={(e) => updateContent('contact', 'mapEmbedUrl', e.target.value)} className="input-field font-mono text-xs" />
                             </div>
                         </div>
                         <FormActions id="contact-info-save" />
                     </div>
 
-                    <div className="flex justify-between items-end border-b border-slate-200/60 pb-8 mb-8">
-                       <h4 className="font-serif text-lg font-bold">Tautan Sosial Media</h4>
-                       <button onClick={() => addSocialLink({ id: Date.now().toString(), platform: 'Instagram', url: '#' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Akun</button>
-                    </div>
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                      <div className="flex justify-between items-center border-b border-slate-200/60 pb-6 mb-6">
+                         <h4 className="font-serif text-lg font-bold">Tautan Sosial Media</h4>
+                         <button onClick={() => addSocialLink({ id: Date.now().toString(), platform: 'Instagram', url: '#' })} className="btn-add"><Plus className="w-4 h-4" /> Tambah Akun</button>
+                      </div>
 
-                    <div className="grid gap-4">
-                        {socialLinks.map(social => (
-                            <div key={social.id} className="flex gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="w-1/4">
-                                    <select value={social.platform} onChange={(e) => updateSocialLink(social.id, {...social, platform: e.target.value as any})} className="input-field py-2 text-sm">
-                                        <option value="Instagram">Instagram</option>
-                                        <option value="Facebook">Facebook</option>
-                                        <option value="Twitter">Twitter</option>
-                                        <option value="Youtube">Youtube</option>
-                                        <option value="TikTok">TikTok</option>
-                                        <option value="Website">Website</option>
-                                    </select>
-                                </div>
-                                <div className="flex-1">
-                                    <input type="text" value={social.url} onChange={(e) => updateSocialLink(social.id, {...social, url: e.target.value})} className="input-field py-2 text-sm font-mono" placeholder="Profile URL..." />
-                                </div>
-                                <button onClick={() => deleteSocialLink(social.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
-                                <FormActions id={`social-${social.id}`} />
-                            </div>
-                        ))}
+                      <div className="grid gap-4">
+                          {socialLinks.map(social => (
+                              <div key={social.id} className="flex gap-4 items-center bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
+                                  <div className="w-1/3">
+                                      <select value={social.platform} onChange={(e) => updateSocialLink(social.id, {...social, platform: e.target.value as any})} className="input-field py-2 text-sm bg-white">
+                                          <option value="Instagram">Instagram</option>
+                                          <option value="Facebook">Facebook</option>
+                                          <option value="Twitter">Twitter</option>
+                                          <option value="Youtube">Youtube</option>
+                                          <option value="TikTok">TikTok</option>
+                                          <option value="Website">Website</option>
+                                      </select>
+                                  </div>
+                                  <div className="flex-1">
+                                      <input type="text" value={social.url || ''} onChange={(e) => updateSocialLink(social.id, {...social, url: e.target.value})} className="input-field py-2 text-sm font-mono bg-white" placeholder="Profile URL..." />
+                                  </div>
+                                  <button onClick={() => deleteSocialLink(social.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                              </div>
+                          ))}
+                      </div>
+                      <FormActions id="social-links-save" />
                     </div>
                  </div>
               )}

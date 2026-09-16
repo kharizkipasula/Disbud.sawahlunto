@@ -631,17 +631,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateContent = async (section: keyof SiteContent, field: string, value: any, lang?: Language) => {
     try {
       let newData = { ...content[section] } as any;
-      if (lang && typeof newData[field] === 'object') {
+      if (lang && typeof newData[field] === 'object' && newData[field] !== null) {
         newData[field] = { ...newData[field], [lang]: value };
       } else {
         newData[field] = value;
       }
+      // Immediate optimistic update
+      setContent(prev => ({ ...prev, [section]: newData }));
       await setDoc(doc(db, 'settings', section), newData, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `settings/${section}`); }
   };
 
   const updateTheme = async (colors: ThemeColors) => {
     try {
+      setContent(prev => ({ ...prev, theme: colors }));
       await setDoc(doc(db, 'settings', 'theme'), colors, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/theme'); }
   };
@@ -649,6 +652,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const addHeroSlide = async (slide: HeroSlide) => {
     try {
       const newSlides = [...content.hero.slides, slide];
+      setContent(prev => ({ ...prev, hero: { ...prev.hero, slides: newSlides } }));
       await setDoc(doc(db, 'settings', 'hero'), { slides: newSlides }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/hero'); }
   };
@@ -656,6 +660,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateHeroSlide = async (id: string, updatedSlide: HeroSlide) => {
     try {
       const newSlides = content.hero.slides.map(s => s.id === id ? updatedSlide : s);
+      setContent(prev => ({ ...prev, hero: { ...prev.hero, slides: newSlides } }));
       await setDoc(doc(db, 'settings', 'hero'), { slides: newSlides }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/hero'); }
   };
@@ -663,25 +668,36 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const deleteHeroSlide = async (id: string) => {
     try {
       const newSlides = content.hero.slides.filter(s => s.id !== id);
+      setContent(prev => ({ ...prev, hero: { ...prev.hero, slides: newSlides } }));
       await setDoc(doc(db, 'settings', 'hero'), { slides: newSlides }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/hero'); }
   };
 
   const addArtItem = async (item: ArtItem) => {
-    try { await setDoc(doc(db, 'arts', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'arts'); }
+    try {
+      setContent(prev => ({ ...prev, arts: { ...prev.arts, items: [...prev.arts.items, item] } }));
+      await setDoc(doc(db, 'arts', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'arts'); }
   };
 
   const updateArtItem = async (id: string, updatedItem: ArtItem) => {
-    try { await updateDoc(doc(db, 'arts', id), updatedItem as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'arts'); }
+    try {
+      setContent(prev => ({ ...prev, arts: { ...prev.arts, items: prev.arts.items.map(a => a.id === id ? updatedItem : a) } }));
+      await setDoc(doc(db, 'arts', id), updatedItem as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'arts'); }
   };
 
   const deleteArtItem = async (id: string) => {
-    try { await deleteDoc(doc(db, 'arts', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'arts'); }
+    try {
+      setContent(prev => ({ ...prev, arts: { ...prev.arts, items: prev.arts.items.filter(a => a.id !== id) } }));
+      await deleteDoc(doc(db, 'arts', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'arts'); }
   };
 
   const addTicket = async (item: TicketItem) => {
     try {
       const newItems = [...content.tickets.items, item];
+      setContent(prev => ({ ...prev, tickets: { ...prev.tickets, items: newItems } }));
       await setDoc(doc(db, 'settings', 'tickets'), { items: newItems }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/tickets'); }
   };
@@ -689,6 +705,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateTicket = async (id: string, updatedItem: TicketItem) => {
     try {
       const newItems = content.tickets.items.map(t => t.id === id ? updatedItem : t);
+      setContent(prev => ({ ...prev, tickets: { ...prev.tickets, items: newItems } }));
       await setDoc(doc(db, 'settings', 'tickets'), { items: newItems }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/tickets'); }
   };
@@ -696,71 +713,129 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const deleteTicket = async (id: string) => {
     try {
       const newItems = content.tickets.items.filter(t => t.id !== id);
+      setContent(prev => ({ ...prev, tickets: { ...prev.tickets, items: newItems } }));
       await setDoc(doc(db, 'settings', 'tickets'), { items: newItems }, { merge: true });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'settings/tickets'); }
   };
 
   const addNavItem = async (item: NavItem) => {
-    try { await setDoc(doc(db, 'navItems', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'navItems'); }
+    try {
+      setNavItems(prev => [...prev, item]);
+      await setDoc(doc(db, 'navItems', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'navItems'); }
   };
   const updateNavItem = async (id: string, updated: NavItem) => {
-    try { await updateDoc(doc(db, 'navItems', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'navItems'); }
+    try {
+      setNavItems(prev => prev.map(n => n.id === id ? updated : n));
+      await setDoc(doc(db, 'navItems', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'navItems'); }
   };
   const deleteNavItem = async (id: string) => {
-    try { await deleteDoc(doc(db, 'navItems', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'navItems'); }
+    try {
+      setNavItems(prev => prev.filter(n => n.id !== id));
+      await deleteDoc(doc(db, 'navItems', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'navItems'); }
   };
   const reorderNavItems = (items: NavItem[]) => setNavItems(items); // Local only for now
   const reorderSections = (order: SectionKey[]) => setSectionOrder(order);
 
   const addAttraction = async (attraction: Attraction) => {
-    try { await setDoc(doc(db, 'attractions', attraction.id), attraction); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'attractions'); }
+    try {
+      setAttractions(prev => [...prev, attraction]);
+      await setDoc(doc(db, 'attractions', attraction.id), attraction);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'attractions'); }
   };
   const updateAttraction = async (id: string, updated: Attraction) => {
-    try { await updateDoc(doc(db, 'attractions', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'attractions'); }
+    try {
+      setAttractions(prev => prev.map(a => a.id === id ? updated : a));
+      await setDoc(doc(db, 'attractions', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'attractions'); }
   };
   const deleteAttraction = async (id: string) => {
-    try { await deleteDoc(doc(db, 'attractions', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'attractions'); }
+    try {
+      setAttractions(prev => prev.filter(a => a.id !== id));
+      await deleteDoc(doc(db, 'attractions', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'attractions'); }
   };
 
   const updateNewsConfig = (config: NewsConfig) => setNewsConfig(config);
   const addNews = async (item: NewsItem) => {
-    try { await setDoc(doc(db, 'news', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'news'); }
+    try {
+      setLocalNews(prev => [...prev, item]);
+      setNews(prev => [...prev, item]);
+      await setDoc(doc(db, 'news', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'news'); }
   };
   const updateNews = async (id: string, updated: NewsItem) => {
-    try { await updateDoc(doc(db, 'news', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'news'); }
+    try {
+      setLocalNews(prev => prev.map(n => n.id === id ? updated : n));
+      setNews(prev => prev.map(n => n.id === id ? updated : n));
+      await setDoc(doc(db, 'news', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'news'); }
   };
   const deleteNews = async (id: string) => {
-    try { await deleteDoc(doc(db, 'news', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'news'); }
+    try {
+      setLocalNews(prev => prev.filter(n => n.id !== id));
+      setNews(prev => prev.filter(n => n.id !== id));
+      await deleteDoc(doc(db, 'news', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'news'); }
   };
 
   const addMuseum = async (item: MuseumItem) => {
-    try { await setDoc(doc(db, 'museums', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'museums'); }
+    try {
+      setMuseums(prev => [...prev, item]);
+      await setDoc(doc(db, 'museums', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'museums'); }
   };
   const updateMuseum = async (id: string, updated: MuseumItem) => {
-    try { await updateDoc(doc(db, 'museums', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'museums'); }
+    try {
+      setMuseums(prev => prev.map(m => m.id === id ? updated : m));
+      await setDoc(doc(db, 'museums', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'museums'); }
   };
   const deleteMuseum = async (id: string) => {
-    try { await deleteDoc(doc(db, 'museums', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'museums'); }
+    try {
+      setMuseums(prev => prev.filter(m => m.id !== id));
+      await deleteDoc(doc(db, 'museums', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'museums'); }
   };
 
   const addSocialLink = async (item: SocialLink) => {
-    try { await setDoc(doc(db, 'socialLinks', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'socialLinks'); }
+    try {
+      setSocialLinks(prev => [...prev, item]);
+      await setDoc(doc(db, 'socialLinks', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'socialLinks'); }
   };
   const updateSocialLink = async (id: string, updated: SocialLink) => {
-    try { await updateDoc(doc(db, 'socialLinks', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'socialLinks'); }
+    try {
+      setSocialLinks(prev => prev.map(s => s.id === id ? updated : s));
+      await setDoc(doc(db, 'socialLinks', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'socialLinks'); }
   };
   const deleteSocialLink = async (id: string) => {
-    try { await deleteDoc(doc(db, 'socialLinks', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'socialLinks'); }
+    try {
+      setSocialLinks(prev => prev.filter(s => s.id !== id));
+      await deleteDoc(doc(db, 'socialLinks', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'socialLinks'); }
   };
 
   const addExternalLink = async (item: ExternalLink) => {
-    try { await setDoc(doc(db, 'externalLinks', item.id), item); } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'externalLinks'); }
+    try {
+      setExternalLinks(prev => [...prev, item]);
+      await setDoc(doc(db, 'externalLinks', item.id), item);
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'externalLinks'); }
   };
   const updateExternalLink = async (id: string, updated: ExternalLink) => {
-    try { await updateDoc(doc(db, 'externalLinks', id), updated as any); } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'externalLinks'); }
+    try {
+      setExternalLinks(prev => prev.map(l => l.id === id ? updated : l));
+      await setDoc(doc(db, 'externalLinks', id), updated as any, { merge: true });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, 'externalLinks'); }
   };
   const deleteExternalLink = async (id: string) => {
-    try { await deleteDoc(doc(db, 'externalLinks', id)); } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'externalLinks'); }
+    try {
+      setExternalLinks(prev => prev.filter(l => l.id !== id));
+      await deleteDoc(doc(db, 'externalLinks', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'externalLinks'); }
   };
 
   return (
