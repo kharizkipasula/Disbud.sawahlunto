@@ -13,7 +13,7 @@ const Attractions: React.FC = () => {
             {language === 'en' ? 'Explore' : 'Jelajahi'}
           </span>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-heritage-dark">
-            {language === 'en' ? 'Top Destinations' : 'Destinasi Unggulan'}
+            {language === 'en' ? 'Sawahlunto City Museums' : 'Museum Kota Sawahlunto'}
           </h2>
         </div>
 

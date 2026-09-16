@@ -33,7 +33,7 @@ const ThemeManager: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
-  const { sectionOrder } = useData();
+  const { sectionOrder, sectionVisibility } = useData();
 
   const sectionComponents: Record<string, React.ReactNode> = {
     hero: <Hero key="hero" />,
@@ -50,7 +50,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen bg-heritage-stone font-sans">
       <ThemeManager />
       <Navbar />
-      {sectionOrder.map(key => sectionComponents[key])}
+      {sectionOrder.filter(key => sectionVisibility[key as keyof typeof sectionVisibility] !== false).map(key => sectionComponents[key])}
       <Footer />
       <HalloSawahlunto />
       <AiGuide />

@@ -60,6 +60,10 @@ export interface MuseumItem {
   name: LocalizedText;
   description: LocalizedText;
   embedQuery: string;
+  lat?: number;
+  lng?: number;
+  address?: LocalizedText;
+  googleMapsUrl?: string;
   streetViewUrl?: string;
   ticketPrices: TicketPrice[];
   contactName?: string;
@@ -164,6 +168,11 @@ export interface NavItem {
 }
 
 export type SectionKey = 'hero' | 'map' | 'portals' | 'heritage' | 'arts' | 'news' | 'attractions' | 'info';
+
+export interface LayoutSettings {
+  sections: SectionKey[];
+  visibility: Record<SectionKey, boolean>;
+}
 
 export type UserRole = 'super_admin' | 'editor';
 

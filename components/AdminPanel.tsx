@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useData } from '../contexts/DataContext';
-import { LocalizedText } from '../types';
+import { LocalizedText, SectionKey } from '../types';
 import { 
   X, Plus, Trash2, Edit2, Globe, Palette, Users, FileText, Music, Instagram, 
   Phone, Ticket, MapPin, Navigation, Layout, User as UserIcon, Key, 
@@ -9,7 +9,8 @@ import {
   Image as ImageIcon, CheckCircle, Info, Landmark, Calendar, Clock, Camera,
   GripVertical, Eye, EyeOff, Monitor, ChevronLeft, ChevronRight, RefreshCw,
   GripHorizontal, Maximize, ZoomIn, ZoomOut, Lock, Settings, Target, Hash,
-  Images, LogOut, ArrowLeft, ArrowRight, Layers, Map as MapIcon, MousePointerClick
+  Images, LogOut, ArrowLeft, ArrowRight, Layers, Map as MapIcon, MousePointerClick,
+  ListOrdered, ArrowUpToLine, ArrowDownToLine, RotateCcw, Sparkles
 } from 'lucide-react';
 
 // Import public components for preview
@@ -32,6 +33,57 @@ const t = {
   logout: { en: 'Logout', id: 'Keluar' },
 };
 
+const SECTION_METADATA: Record<SectionKey, { name: LocalizedText; desc: LocalizedText; icon: any; category: string }> = {
+  hero: {
+    name: { id: 'Hero Slider', en: 'Hero Slider' },
+    desc: { id: 'Banner utama dan pembuka visual interaktif di bagian teratas beranda', en: 'Main interactive banner and visual showcase at the top of the homepage' },
+    icon: Layers,
+    category: 'Utama'
+  },
+  map: {
+    name: { id: 'Peta & Lokasi Museum', en: 'Museums & Interactive Map' },
+    desc: { id: 'Peta interaktif titik museum bersejarah, Street View 360°, dan navigasi lokasi', en: 'Interactive museum map, 360° Street View, and location navigation' },
+    icon: MapIcon,
+    category: 'Eksplorasi'
+  },
+  portals: {
+    name: { id: 'Portal Layanan Luar', en: 'External Portals' },
+    desc: { id: 'Tautan cepat ke Tur Virtual 360, Reservasi E-Tiket, dan portal luar lainnya', en: 'Direct links to Virtual Tour 360, E-Tickets, and external partner portals' },
+    icon: MousePointerClick,
+    category: 'Layanan'
+  },
+  heritage: {
+    name: { id: 'Warisan Kita (UNESCO)', en: 'Our Heritage' },
+    desc: { id: 'Dokumentasi Warisan Benda (Tambang Ombilin) & Warisan Tak Benda (Songket)', en: 'Tangible (Ombilin Coal Mining) & Intangible (Songket) UNESCO World Heritage' },
+    icon: FileText,
+    category: 'Edukasi'
+  },
+  arts: {
+    name: { id: 'Seni & Pertunjukan', en: 'Arts & Performance' },
+    desc: { id: 'Kesenian tradisional kota: Randai, Kuda Kepang, Tari Piring, dan atraksi budaya', en: 'Traditional arts: Randai, Kuda Kepang, Plate Dance, and cultural performances' },
+    icon: Music,
+    category: 'Budaya'
+  },
+  news: {
+    name: { id: 'Berita & Pengumuman', en: 'News & Announcements' },
+    desc: { id: 'Warta kebudayaan, publikasi festival kota, dan agenda agenda terkini', en: 'Cultural news, city festival announcements, and latest updates' },
+    icon: Instagram,
+    category: 'Informasi'
+  },
+  attractions: {
+    name: { id: 'Destinasi Wisata', en: 'Destinations & Attractions' },
+    desc: { id: 'Katalog daya tarik objek wisata sejarah, alam, dan budaya Sawahlunto', en: 'Historical, natural, and cultural tourist attractions catalogue' },
+    icon: MapPin,
+    category: 'Pariwisata'
+  },
+  info: {
+    name: { id: 'Tiket & Operasional', en: 'Tickets & Operations' },
+    desc: { id: 'Tarif tiket masuk, jam buka operasional, profil instansi dinas & visi misi', en: 'Admission ticket prices, operating hours, and agency profile info' },
+    icon: Ticket,
+    category: 'Operasional'
+  }
+};
+
 const AdminPanel: React.FC = () => {
   const { 
     language, isAdminOpen, setIsAdminOpen, isAuthenticated, login, loginWithEmail, logout,
@@ -45,7 +97,8 @@ const AdminPanel: React.FC = () => {
     addHeroSlide, updateHeroSlide, deleteHeroSlide,
     museums, addMuseum, updateMuseum, deleteMuseum,
     socialLinks, addSocialLink, updateSocialLink, deleteSocialLink,
-    externalLinks, addExternalLink, updateExternalLink, deleteExternalLink
+    externalLinks, addExternalLink, updateExternalLink, deleteExternalLink,
+    sectionOrder, sectionVisibility, reorderSections, toggleSectionVisibility, saveLayout, resetLayout
   } = useData();
 
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -302,6 +355,7 @@ const AdminPanel: React.FC = () => {
 
   const sidebarLinks = [
     { id: 'general', label: 'Identitas', icon: Globe },
+    { id: 'layout', label: 'Tata Letak Beranda', icon: ListOrdered },
     { id: 'hero', label: 'Hero Slider', icon: Layers },
     { id: 'heritage', label: 'Warisan', icon: FileText },
     { id: 'map', label: 'Museum & Tiket', icon: MapIcon },
@@ -396,6 +450,217 @@ const AdminPanel: React.FC = () => {
                         </div>
                     </div>
                     <FormActions id="branding" />
+                  </div>
+                </div>
+              )}
+
+              {/* TATA LETAK BERANDA (LAYOUT ORDER & VISIBILITY) */}
+              {activeSection === 'layout' && (
+                <div className="space-y-8 animate-fade-in">
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-200/60 pb-8 gap-4">
+                    <SectionHeader icon={ListOrdered} title="Tata Letak Beranda" subtitle="Urutan Posisi & Visibilitas Seksi Halaman Utama" />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await resetLayout();
+                        triggerSaveFeedback('layout-reset');
+                      }}
+                      className="btn-add text-slate-700 hover:text-slate-900 shrink-0"
+                    >
+                      <RotateCcw className="w-4 h-4 text-heritage-gold" />
+                      {saveStatus['layout-reset'] ? 'Urutan Direset!' : 'Kembalikan ke Standar'}
+                    </button>
+                  </div>
+
+                  {/* Info Banner */}
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/70 rounded-2xl p-5 shadow-sm flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1 text-sm text-amber-950">
+                      <p className="font-bold text-amber-900">Pengaturan Fleksibel Halaman Depan</p>
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Gunakan tombol panah <strong>Naik (↑)</strong> dan <strong>Turun (↓)</strong> untuk memindahkan posisi seksi (misal: memindahkan <em>Warisan Kita</em> ke bawah <em>Berita</em>). Anda juga dapat menggunakan tombol <strong>Mata</strong> untuk menampilkan atau menyembunyikan seksi dari publik. Perubahan langsung tercermin pada Live Preview di sebelah kanan.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Section List */}
+                  <div className="space-y-3">
+                    {sectionOrder.map((secKey, index) => {
+                      const meta = SECTION_METADATA[secKey] || {
+                        name: { id: secKey, en: secKey },
+                        desc: { id: '', en: '' },
+                        icon: Layers,
+                        category: 'Seksi'
+                      };
+                      const IconComponent = meta.icon;
+                      const isVisible = sectionVisibility[secKey] !== false;
+                      const isFirst = index === 0;
+                      const isLast = index === sectionOrder.length - 1;
+
+                      const handleMoveUp = async () => {
+                        if (isFirst) return;
+                        const newOrder = [...sectionOrder];
+                        const temp = newOrder[index - 1];
+                        newOrder[index - 1] = newOrder[index];
+                        newOrder[index] = temp;
+                        await reorderSections(newOrder);
+                      };
+
+                      const handleMoveDown = async () => {
+                        if (isLast) return;
+                        const newOrder = [...sectionOrder];
+                        const temp = newOrder[index + 1];
+                        newOrder[index + 1] = newOrder[index];
+                        newOrder[index] = temp;
+                        await reorderSections(newOrder);
+                      };
+
+                      const handleMoveToTop = async () => {
+                        if (isFirst) return;
+                        const item = sectionOrder[index];
+                        const newOrder = [item, ...sectionOrder.filter((_, i) => i !== index)];
+                        await reorderSections(newOrder);
+                      };
+
+                      return (
+                        <div
+                          key={secKey}
+                          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-200 gap-4 ${
+                            isVisible 
+                              ? 'bg-white border-slate-200/90 shadow-sm hover:border-heritage-gold/50 hover:shadow-md' 
+                              : 'bg-slate-50/80 border-slate-200 opacity-60'
+                          }`}
+                        >
+                          {/* Left: Position & Section Info */}
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Position Number Badge */}
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 border ${
+                              isVisible 
+                                ? 'bg-slate-900 text-heritage-gold border-slate-800' 
+                                : 'bg-slate-200 text-slate-500 border-slate-300'
+                            }`}>
+                              #{index + 1}
+                            </div>
+
+                            {/* Section Icon */}
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
+                              isVisible 
+                                ? 'bg-amber-50 border-amber-200/80 text-heritage-gold' 
+                                : 'bg-slate-100 border-slate-200 text-slate-400'
+                            }`}>
+                              <IconComponent className="w-5 h-5" />
+                            </div>
+
+                            {/* Text Info */}
+                            <div className="space-y-0.5 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className={`font-bold text-base tracking-tight ${isVisible ? 'text-slate-900' : 'text-slate-500 line-through'}`}>
+                                  {meta.name[language] || meta.name.id}
+                                </h4>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                  {meta.category}
+                                </span>
+                                {isVisible ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Aktif
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                                    Disembunyikan
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-500 line-clamp-1">
+                                {meta.desc[language] || meta.desc.id}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right: Controls (Move Up, Move Down, Move Top, Visibility Toggle) */}
+                          <div className="flex items-center gap-2 self-end sm:self-center shrink-0 bg-slate-50 p-1.5 rounded-xl border border-slate-200/80">
+                            {/* Move to Top */}
+                            <button
+                              type="button"
+                              onClick={handleMoveToTop}
+                              disabled={isFirst}
+                              title="Pindah ke Paling Atas"
+                              className={`p-2 rounded-lg text-xs font-medium transition-colors ${
+                                isFirst 
+                                  ? 'text-slate-300 cursor-not-allowed' 
+                                  : 'text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-xs'
+                              }`}
+                            >
+                              <ArrowUpToLine className="w-4 h-4" />
+                            </button>
+
+                            {/* Move Up */}
+                            <button
+                              type="button"
+                              onClick={handleMoveUp}
+                              disabled={isFirst}
+                              title="Geser Naik (Ke Atas)"
+                              className={`flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                                isFirst 
+                                  ? 'text-slate-300 cursor-not-allowed' 
+                                  : 'bg-white text-slate-800 shadow-xs hover:bg-slate-900 hover:text-white'
+                              }`}
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                              <span className="hidden md:inline">Naik</span>
+                            </button>
+
+                            {/* Move Down */}
+                            <button
+                              type="button"
+                              onClick={handleMoveDown}
+                              disabled={isLast}
+                              title="Geser Turun (Ke Bawah)"
+                              className={`flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                                isLast 
+                                  ? 'text-slate-300 cursor-not-allowed' 
+                                  : 'bg-white text-slate-800 shadow-xs hover:bg-slate-900 hover:text-white'
+                              }`}
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                              <span className="hidden md:inline">Turun</span>
+                            </button>
+
+                            <div className="w-[1px] h-5 bg-slate-200 mx-1"></div>
+
+                            {/* Visibility Toggle */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSectionVisibility(secKey)}
+                              title={isVisible ? 'Sembunyikan Seksi dari Beranda' : 'Tampilkan Seksi di Beranda'}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                                isVisible 
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs' 
+                                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                              }`}
+                            >
+                              {isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                              <span className="hidden lg:inline">{isVisible ? 'Tampil' : 'Sembunyi'}</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Save Layout Action Bar */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-xs text-slate-500">
+                      Perubahan tata letak tersimpan otomatis dan dapat langsung dicek di halaman utama.
+                    </div>
+                    <FormActions 
+                      id="layout-save" 
+                      onSave={async () => {
+                        await saveLayout(sectionOrder, sectionVisibility);
+                      }} 
+                    />
                   </div>
                 </div>
               )}
@@ -1000,7 +1265,7 @@ const AdminPanel: React.FC = () => {
               )}
 
               {/* Fallback Section */}
-              {!['general', 'theme', 'navigation', 'heritage', 'news', 'tickets', 'contact', 'arts', 'destinations', 'organization', 'hero', 'map', 'portals'].includes(activeSection) && (
+              {!['general', 'layout', 'theme', 'navigation', 'heritage', 'news', 'tickets', 'contact', 'arts', 'destinations', 'organization', 'hero', 'map', 'portals', 'users'].includes(activeSection) && (
                 <div className="flex flex-col items-center justify-center py-32 bg-white rounded-2xl border border-slate-200 border-dashed m-4">
                    <div className="p-6 bg-slate-50 rounded-full mb-6 border border-slate-100">
                       <Hash className="w-10 h-10 text-gray-400" />
@@ -1041,14 +1306,21 @@ const AdminPanel: React.FC = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto hide-scrollbar preview-content" style={{ '--color-primary': content.theme.primary, '--color-secondary': content.theme.secondary, '--color-background': content.theme.background, '--color-dark': content.theme.dark } as React.CSSProperties}>
                            <div className="pointer-events-none origin-top select-none">
-                              <Hero />
-                              <MuseumMap />
-                              <ExternalPortals />
-                              <HeritageMain />
-                              <ArtsSection />
-                              <NewsSection />
-                              <Attractions />
-                              <InfoSection />
+                              {sectionOrder
+                                .filter(key => sectionVisibility[key] !== false)
+                                .map(key => {
+                                  switch (key) {
+                                    case 'hero': return <Hero key="hero" />;
+                                    case 'map': return <MuseumMap key="map" />;
+                                    case 'portals': return <ExternalPortals key="portals" />;
+                                    case 'heritage': return <HeritageMain key="heritage" />;
+                                    case 'arts': return <ArtsSection key="arts" />;
+                                    case 'news': return <NewsSection key="news" />;
+                                    case 'attractions': return <Attractions key="attractions" />;
+                                    case 'info': return <InfoSection key="info" />;
+                                    default: return null;
+                                  }
+                                })}
                               <Footer />
                            </div>
                         </div>

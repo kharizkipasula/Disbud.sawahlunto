@@ -62,7 +62,11 @@ interface DataContextType {
   setActiveInfoTab: (tab: 'tickets' | 'vision' | 'org' | 'map') => void;
 
   sectionOrder: SectionKey[];
-  reorderSections: (order: SectionKey[]) => void;
+  sectionVisibility: Record<SectionKey, boolean>;
+  reorderSections: (order: SectionKey[]) => Promise<void>;
+  toggleSectionVisibility: (key: SectionKey) => Promise<void>;
+  saveLayout: (order: SectionKey[], visibility: Record<SectionKey, boolean>) => Promise<void>;
+  resetLayout: () => Promise<void>;
 
   attractions: Attraction[];
   addAttraction: (attraction: Attraction) => void;
@@ -91,6 +95,21 @@ interface DataContextType {
   updateExternalLink: (id: string, item: ExternalLink) => void;
   deleteExternalLink: (id: string) => void;
 }
+
+const defaultSectionOrder: SectionKey[] = [
+  'hero', 'map', 'portals', 'heritage', 'arts', 'news', 'attractions', 'info'
+];
+
+const defaultSectionVisibility: Record<SectionKey, boolean> = {
+  hero: true,
+  map: true,
+  portals: true,
+  heritage: true,
+  arts: true,
+  news: true,
+  attractions: true,
+  info: true
+};
 
 const defaultContent: SiteContent = {
   branding: {
@@ -255,6 +274,10 @@ const defaultMuseums: MuseumItem[] = [
     name: { en: 'Mbah Soero Tunnel', id: 'Lubang Mbah Soero' },
     description: { en: 'Historic coal mining tunnel.', id: 'Terowongan tambang batubara bersejarah.' },
     embedQuery: 'Lubang+Tambang+Mbah+Soero',
+    lat: -0.677892,
+    lng: 100.779421,
+    address: { id: 'Jl. Abdurrahman Hakim, Tanah Lapang, Kec. Lembah Segar, Sawahlunto', en: 'Jl. Abdurrahman Hakim, Tanah Lapang, Lembah Segar, Sawahlunto' },
+    googleMapsUrl: 'https://maps.google.com/?q=Lubang+Tambang+Mbah+Soero+Sawahlunto',
     streetViewUrl: 'https://www.google.com/maps/embed?pb=!4v1614083391204!6m8!1m7!1sCAoSLEFGMVFpcE5wc1p2c2h3Z1l2S1p2c2h3Z1l2S1p2!2m2!1d-0.675!2d100.758!3f248.88!4f1.95!5f0.7820865974627469',
     contactName: 'Bapak Budi',
     contactPhone: '+62 812 3456 7890',
@@ -271,6 +294,10 @@ const defaultMuseums: MuseumItem[] = [
     name: { en: 'Goedang Ransoem Museum', id: 'Museum Goedang Ransoem' },
     description: { en: 'Former public kitchen.', id: 'Bekas dapur umum.' },
     embedQuery: 'Museum+Goedang+Ransoem',
+    lat: -0.681734,
+    lng: 100.778789,
+    address: { id: 'Jl. Abdul Rahman Hakim No. 4, Air Dingin, Lembah Segar, Sawahlunto', en: 'Jl. Abdul Rahman Hakim No. 4, Air Dingin, Lembah Segar, Sawahlunto' },
+    googleMapsUrl: 'https://maps.google.com/?q=Museum+Goedang+Ransoem+Sawahlunto',
     streetViewUrl: 'https://www.google.com/maps/embed?pb=!4v1614083391204!6m8!1m7!1sCAoSLEFGMVFpcE5wc1p2c2h3Z1l2S1p2c2h3Z1l2S1p2!2m2!1d-0.675!2d100.758!3f0!4f0!5f0.7820865974627469',
     contactName: 'Ibu Siti',
     contactPhone: '+62 813 4567 8901',
@@ -287,6 +314,10 @@ const defaultMuseums: MuseumItem[] = [
     name: { en: 'Railway Museum', id: 'Museum Kereta Api' },
     description: { en: 'History of coal transport.', id: 'Sejarah kereta pengangkut batubara.' },
     embedQuery: 'Museum+Kereta+Api+Sawahlunto',
+    lat: -0.681121,
+    lng: 100.776142,
+    address: { id: 'Jl. Ahmad Yani, Pasar, Kec. Lembah Segar, Sawahlunto', en: 'Jl. Ahmad Yani, Pasar, Lembah Segar, Sawahlunto' },
+    googleMapsUrl: 'https://maps.google.com/?q=Museum+Kereta+Api+Sawahlunto',
     streetViewUrl: 'https://www.google.com/maps/embed?pb=!4v1614083391204!6m8!1m7!1sCAoSLEFGMVFpcE5wc1p2c2h3Z1l2S1p2c2h3Z1l2S1p2!2m2!1d-0.675!2d100.758!3f248.88!4f1.95!5f0.7820865974627469',
     contactName: 'Bapak Andi',
     contactPhone: '+62 811 2345 6789',
@@ -303,6 +334,10 @@ const defaultMuseums: MuseumItem[] = [
     name: { en: 'Cultural Center', id: 'Gedung Pusat Kebudayaan' },
     description: { en: 'Center for arts.', id: 'Pusat seni.' },
     embedQuery: 'Gedung+Pusat+Kebudayaan+Sawahlunto',
+    lat: -0.680323,
+    lng: 100.778210,
+    address: { id: 'Jl. Jenderal Sudirman No. 1, Sawahlunto', en: 'Jl. Jenderal Sudirman No. 1, Sawahlunto' },
+    googleMapsUrl: 'https://maps.google.com/?q=Gedung+Pusat+Kebudayaan+Sawahlunto',
     streetViewUrl: 'https://www.google.com/maps/embed?pb=!4v1614083391204!6m8!1m7!1sCAoSLEFGMVFpcE5wc1p2c2h3Z1l2S1p2c2h3Z1l2S1p2!2m2!1d-0.675!2d100.758!3f0!4f0!5f0.7820865974627469',
     contactName: 'Ibu Ratna',
     contactPhone: '+62 815 6789 0123',
@@ -371,9 +406,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [navItems, setNavItems] = useState<NavItem[]>(defaultNavItems);
   const [activeHeritageTab, setActiveHeritageTab] = useState<'tangible' | 'intangible'>('tangible');
   const [activeInfoTab, setActiveInfoTab] = useState<'tickets' | 'vision' | 'org' | 'map'>('tickets');
-  const [sectionOrder, setSectionOrder] = useState<SectionKey[]>([
-    'hero', 'map', 'portals', 'heritage', 'arts', 'news', 'attractions', 'info'
-  ]);
+  const [sectionOrder, setSectionOrder] = useState<SectionKey[]>(defaultSectionOrder);
+  const [sectionVisibility, setSectionVisibility] = useState<Record<SectionKey, boolean>>(defaultSectionVisibility);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [localNews, setLocalNews] = useState<NewsItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -421,14 +455,30 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
     // Sync settings
-    const settingsKeys = ['branding', 'hero', 'history', 'culture', 'organization', 'tickets', 'contact', 'theme', 'arts'] as const;
+    const settingsKeys = ['branding', 'hero', 'history', 'culture', 'organization', 'tickets', 'contact', 'theme', 'arts', 'layout'] as const;
     const unsubSettings = settingsKeys.map(key => 
       onSnapshot(doc(db, 'settings', key), (docSnap) => {
         if (docSnap.exists()) {
-          setContent(prev => ({ ...prev, [key]: { ...prev[key as keyof SiteContent], ...docSnap.data() } }));
-        } else if (currentUser?.role === 'admin') {
+          if (key === 'layout') {
+            const data = docSnap.data();
+            if (Array.isArray(data.sections) && data.sections.length > 0) {
+              const currentSections: SectionKey[] = data.sections;
+              const missingSections = defaultSectionOrder.filter(s => !currentSections.includes(s));
+              setSectionOrder([...currentSections, ...missingSections]);
+            }
+            if (data.visibility && typeof data.visibility === 'object') {
+              setSectionVisibility({ ...defaultSectionVisibility, ...data.visibility });
+            }
+          } else {
+            setContent(prev => ({ ...prev, [key]: { ...prev[key as keyof SiteContent], ...docSnap.data() } }));
+          }
+        } else if (currentUser?.role === 'admin' || currentUser?.role === 'super_admin') {
           // Seed default content if not exists and user is admin
-          setDoc(doc(db, 'settings', key), defaultContent[key as keyof SiteContent]).catch(e => console.error("Failed to seed settings", e));
+          if (key === 'layout') {
+            setDoc(doc(db, 'settings', 'layout'), { sections: defaultSectionOrder, visibility: defaultSectionVisibility }).catch(e => console.error("Failed to seed layout", e));
+          } else {
+            setDoc(doc(db, 'settings', key), defaultContent[key as keyof SiteContent]).catch(e => console.error("Failed to seed settings", e));
+          }
         }
       }, (error) => handleFirestoreError(error, OperationType.GET, `settings/${key}`))
     );
@@ -737,7 +787,60 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'navItems'); }
   };
   const reorderNavItems = (items: NavItem[]) => setNavItems(items); // Local only for now
-  const reorderSections = (order: SectionKey[]) => setSectionOrder(order);
+
+  const reorderSections = async (order: SectionKey[]) => {
+    setSectionOrder(order);
+    try {
+      await setDoc(doc(db, 'settings', 'layout'), {
+        sections: order,
+        visibility: sectionVisibility
+      }, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/layout');
+    }
+  };
+
+  const toggleSectionVisibility = async (key: SectionKey) => {
+    const updated = {
+      ...sectionVisibility,
+      [key]: sectionVisibility[key] === false ? true : false
+    };
+    setSectionVisibility(updated);
+    try {
+      await setDoc(doc(db, 'settings', 'layout'), {
+        sections: sectionOrder,
+        visibility: updated
+      }, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/layout');
+    }
+  };
+
+  const saveLayout = async (order: SectionKey[], visibility: Record<SectionKey, boolean>) => {
+    setSectionOrder(order);
+    setSectionVisibility(visibility);
+    try {
+      await setDoc(doc(db, 'settings', 'layout'), {
+        sections: order,
+        visibility: visibility
+      }, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/layout');
+    }
+  };
+
+  const resetLayout = async () => {
+    setSectionOrder(defaultSectionOrder);
+    setSectionVisibility(defaultSectionVisibility);
+    try {
+      await setDoc(doc(db, 'settings', 'layout'), {
+        sections: defaultSectionOrder,
+        visibility: defaultSectionVisibility
+      }, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/layout');
+    }
+  };
 
   const addAttraction = async (attraction: Attraction) => {
     try {
@@ -851,7 +954,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       navItems, addNavItem, updateNavItem, deleteNavItem, reorderNavItems,
       activeHeritageTab, setActiveHeritageTab,
       activeInfoTab, setActiveInfoTab,
-      sectionOrder, reorderSections,
+      sectionOrder, sectionVisibility, reorderSections, toggleSectionVisibility, saveLayout, resetLayout,
       attractions, addAttraction, updateAttraction, deleteAttraction,
       news, newsConfig, updateNewsConfig, addNews, updateNews, deleteNews,
       museums, addMuseum, updateMuseum, deleteMuseum,
