@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dinas Kebudayaan Kota Sawahlunto - Sawahlunto Cultural Heritage</title>
+    <meta name="description" content="Portal Resmi Dinas Kebudayaan Kota Sawahlunto - Warisan Budaya Dunia UNESCO Tambang Batubara Ombilin Sawahlunto, Museum, Destinasi Budaya, Berita, dan Panduan Wisata Interaktif." />
+    <meta property="og:title" content="Dinas Kebudayaan Kota Sawahlunto - Sawahlunto Cultural Heritage" />
+    <meta property="og:description" content="Portal Resmi Dinas Kebudayaan Kota Sawahlunto - Warisan Budaya Dunia UNESCO Tambang Batubara Ombilin Sawahlunto, Museum, Destinasi Budaya, Berita, dan Panduan Wisata Interaktif." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Montserrat"', 'sans-serif'],
+              sans: ['"Inter"', 'sans-serif'],
+              display: ['"Montserrat"', 'sans-serif'],
+            },
+            colors: {
+              heritage: {
+                gold: 'var(--color-primary)',
+                dark: 'var(--color-dark)',
+                stone: 'var(--color-background)',
+                brick: 'var(--color-secondary)',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --color-primary: #C5A059;
+        --color-secondary: #8B4513;
+        --color-background: #F5F5F0;
+        --color-dark: #1C1C1C;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="bg-heritage-stone text-heritage-dark antialiased font-sans">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

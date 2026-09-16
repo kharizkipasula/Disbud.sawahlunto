@@ -1,0 +1,277 @@
+{
+  "entities": {
+    "Branding": {
+      "title": "Branding",
+      "description": "Website branding settings",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string" },
+        "siteTitle": { "type": "string" },
+        "siteSubtitle": { "type": "string" }
+      }
+    },
+    "Hero": {
+      "title": "Hero",
+      "description": "Hero section settings",
+      "type": "object",
+      "properties": {
+        "slides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "imageUrl": { "type": "string" },
+              "title": { "type": "string" },
+              "subtitle": { "type": "string" },
+              "description": { "type": "string" },
+              "ctaText": { "type": "string" },
+              "ctaLink": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "History": {
+      "title": "History",
+      "description": "History section settings",
+      "type": "object",
+      "properties": {
+        "sectionTitle": { "type": "string" },
+        "mainTitle": { "type": "string" },
+        "description1": { "type": "string" },
+        "description2": { "type": "string" },
+        "imageUrl1": { "type": "string" },
+        "imageUrl2": { "type": "string" },
+        "linkText": { "type": "string" },
+        "linkUrl": { "type": "string" }
+      }
+    },
+    "Culture": {
+      "title": "Culture",
+      "description": "Culture section settings",
+      "type": "object",
+      "properties": {
+        "sectionTitle": { "type": "string" },
+        "mainTitle": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "linkText": { "type": "string" },
+        "linkUrl": { "type": "string" }
+      }
+    },
+    "Organization": {
+      "title": "Organization",
+      "description": "Organization section settings",
+      "type": "object",
+      "properties": {
+        "structureImageUrl": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "Tickets": {
+      "title": "Tickets",
+      "description": "Tickets section settings",
+      "type": "object",
+      "properties": {
+        "generalInfo": { "type": "string" },
+        "termsAndConditions": { "type": "string" }
+      }
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Contact section settings",
+      "type": "object",
+      "properties": {
+        "address": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "workingHours": { "type": "string" }
+      }
+    },
+    "Theme": {
+      "title": "Theme",
+      "description": "Theme settings",
+      "type": "object",
+      "properties": {
+        "primaryColor": { "type": "string" },
+        "secondaryColor": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "backgroundColor": { "type": "string" },
+        "textColor": { "type": "string" },
+        "fontFamily": { "type": "string" }
+      }
+    },
+    "NewsItem": {
+      "title": "NewsItem",
+      "description": "A news article",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "summary": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "author": { "type": "string" }
+      },
+      "required": ["title", "date"]
+    },
+    "Attraction": {
+      "title": "Attraction",
+      "description": "A tourist attraction",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "link": { "type": "string" }
+      },
+      "required": ["title"]
+    },
+    "ArtItem": {
+      "title": "ArtItem",
+      "description": "An art or performance item",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["title"]
+    },
+    "Museum": {
+      "title": "Museum",
+      "description": "A museum",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "mapUrl": { "type": "string" },
+        "ticketPrice": { "type": "string" },
+        "openingHours": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "NavItem": {
+      "title": "NavItem",
+      "description": "A navigation item",
+      "type": "object",
+      "properties": {
+        "label": { "type": "string" },
+        "href": { "type": "string" },
+        "isDropdown": { "type": "boolean" },
+        "dropdownItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "href": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["label"]
+    },
+    "SocialLink": {
+      "title": "SocialLink",
+      "description": "A social media link",
+      "type": "object",
+      "properties": {
+        "platform": { "type": "string" },
+        "url": { "type": "string" },
+        "icon": { "type": "string" }
+      },
+      "required": ["platform", "url"]
+    },
+    "ExternalLink": {
+      "title": "ExternalLink",
+      "description": "An external portal link",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["title", "url"]
+    },
+    "User": {
+      "title": "User",
+      "description": "An admin user",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/settings/branding": {
+      "schema": "Branding",
+      "description": "Branding settings"
+    },
+    "/settings/hero": {
+      "schema": "Hero",
+      "description": "Hero settings"
+    },
+    "/settings/history": {
+      "schema": "History",
+      "description": "History settings"
+    },
+    "/settings/culture": {
+      "schema": "Culture",
+      "description": "Culture settings"
+    },
+    "/settings/organization": {
+      "schema": "Organization",
+      "description": "Organization settings"
+    },
+    "/settings/tickets": {
+      "schema": "Tickets",
+      "description": "Tickets settings"
+    },
+    "/settings/contact": {
+      "schema": "Contact",
+      "description": "Contact settings"
+    },
+    "/settings/theme": {
+      "schema": "Theme",
+      "description": "Theme settings"
+    },
+    "/news/{newsId}": {
+      "schema": "NewsItem",
+      "description": "News articles"
+    },
+    "/attractions/{attractionId}": {
+      "schema": "Attraction",
+      "description": "Tourist attractions"
+    },
+    "/arts/{artId}": {
+      "schema": "ArtItem",
+      "description": "Arts and performances"
+    },
+    "/museums/{museumId}": {
+      "schema": "Museum",
+      "description": "Museums"
+    },
+    "/navItems/{navItemId}": {
+      "schema": "NavItem",
+      "description": "Navigation items"
+    },
+    "/socialLinks/{socialLinkId}": {
+      "schema": "SocialLink",
+      "description": "Social media links"
+    },
+    "/externalLinks/{externalLinkId}": {
+      "schema": "ExternalLink",
+      "description": "External portal links"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Admin users"
+    }
+  }
+}

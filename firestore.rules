@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: settings
+    // Document ID: branding, hero, history, culture, organization, tickets, contact, theme
+    // Fields: Various string fields, arrays of objects.
+    //
+    // Collection: news
+    // Document ID: auto-generated
+    // Fields: title (string), date (string), summary (string), content (string), imageUrl (string), author (string)
+    //
+    // Collection: attractions, arts, museums, navItems, socialLinks, externalLinks
+    // Document ID: auto-generated
+    // Fields: Various string fields.
+    //
+    // Collection: users
+    // Document ID: user uid
+    // Fields: email (string), role (string)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (request.auth.token.email == "kharizkipasula47@admin.sd.belajar.id" && request.auth.token.email_verified == true) ||
+          request.auth.token.email == "admin@sawahlunto.go.id" ||
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['email', 'role']) &&
+             data.email is string && data.email.size() > 0 && data.email.size() < 100 &&
+             data.role in ['admin', 'editor'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Settings (branding, hero, etc.)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // News
+    match /news/{newsId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Attractions
+    match /attractions/{attractionId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Arts
+    match /arts/{artId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Museums
+    match /museums/{museumId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // NavItems
+    match /navItems/{navItemId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // SocialLinks
+    match /socialLinks/{socialLinkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ExternalLinks
+    match /externalLinks/{externalLinkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Users (Admin management)
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+
+      // Only admins can create/update users, or the default admin
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && isAdmin();
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
