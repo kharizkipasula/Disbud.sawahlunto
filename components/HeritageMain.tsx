@@ -15,28 +15,28 @@ const HeritageMain: React.FC = () => {
                 {language === 'en' ? 'Our Heritage' : 'Warisan Kita'}
             </span>
             
-            <div className="bg-white p-1.5 rounded-full shadow-md border border-gray-200 flex items-center gap-2 animate-fade-in-up delay-100">
+            <div className="bg-white p-1 sm:p-1.5 rounded-full shadow-md border border-gray-200 flex items-center gap-1 sm:gap-2 max-w-full animate-fade-in-up delay-100">
                 <button 
                     onClick={() => setActiveHeritageTab('tangible')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap ${
                         activeHeritageTab === 'tangible' 
-                        ? 'bg-heritage-dark text-white shadow-lg transform scale-105' 
+                        ? 'bg-heritage-dark text-white shadow-lg transform scale-100 sm:scale-105' 
                         : 'bg-transparent text-gray-500 hover:bg-gray-100'
                     }`}
                 >
-                    <Box className="w-4 h-4" />
-                    {language === 'en' ? 'Tangible Heritage' : 'Warisan Benda'}
+                    <Box className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>{language === 'en' ? 'Tangible Heritage' : 'Warisan Benda'}</span>
                 </button>
                 <button 
                     onClick={() => setActiveHeritageTab('intangible')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap ${
                         activeHeritageTab === 'intangible' 
-                        ? 'bg-heritage-gold text-white shadow-lg transform scale-105' 
+                        ? 'bg-heritage-gold text-white shadow-lg transform scale-100 sm:scale-105' 
                         : 'bg-transparent text-gray-500 hover:bg-gray-100'
                     }`}
                 >
-                    <Sparkles className="w-4 h-4" />
-                    {language === 'en' ? 'Intangible Heritage' : 'Warisan Tak Benda'}
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>{language === 'en' ? 'Intangible Heritage' : 'Warisan Tak Benda'}</span>
                 </button>
             </div>
         </div>

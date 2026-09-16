@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Menu, X, MapPin, Settings, Lock, Facebook, Instagram, Twitter, Youtube, 
   Globe as WebIcon, Video, Mail, Phone, ExternalLink, ChevronDown, User, 
-  Building2, BookOpen, Compass, Ticket, Newspaper, Info, Sparkles
+  Building2, BookOpen, Compass, Ticket, Newspaper, Info, Sparkles, Landmark, FileText
 } from 'lucide-react';
 import { NavItem, SocialLink } from '../types';
 import { useData } from '../contexts/DataContext';
@@ -180,11 +180,11 @@ const Navbar: React.FC = () => {
                 <MapPin className="w-5 h-5" />
               </div>
             )}
-            <div className="flex flex-col">
-              <span className="font-serif font-bold text-base sm:text-lg tracking-wide text-white leading-tight drop-shadow-sm">
+            <div className="flex flex-col min-w-0 max-w-[210px] xs:max-w-xs sm:max-w-none">
+              <span className="font-serif font-bold text-sm sm:text-base md:text-lg tracking-wide text-white leading-tight drop-shadow-sm truncate">
                 {content.branding.siteName}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-slate-300 drop-shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-slate-300 drop-shadow-xs truncate">
                 {content.branding.subTitle}
               </span>
             </div>
@@ -355,7 +355,7 @@ const Navbar: React.FC = () => {
             
             {/* Language Selector Pill with Flag (Matching Screenshot Style) */}
             <div 
-              className="relative"
+              className="hidden lg:block relative"
               onMouseEnter={() => handleDropdownEnter('lang')}
               onMouseLeave={handleDropdownLeave}
             >
@@ -364,11 +364,8 @@ const Navbar: React.FC = () => {
                 className="bg-white text-slate-800 hover:text-amber-800 hover:bg-slate-50 transition-all rounded-full px-3.5 py-1.5 sm:py-2 text-xs font-bold shadow-md border border-slate-200 flex items-center gap-2"
                 title={language === 'en' ? 'Switch to Bahasa Indonesia' : 'Switch to English'}
               >
-                <span className="hidden sm:inline-block">
+                <span>
                   {language === 'en' ? 'English' : 'Indonesia'}
-                </span>
-                <span className="sm:hidden font-mono">
-                  {language === 'en' ? 'EN' : 'ID'}
                 </span>
                 {language === 'en' ? (
                   <EnglishFlagIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -410,8 +407,8 @@ const Navbar: React.FC = () => {
               )}
             </div>
 
-            {/* Social Media Icons (Vibrant Modern Circular Badges) */}
-            <div className="hidden md:flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10">
+            {/* Social Media Icons (Vibrant Modern Circular Badges) - DESKTOP ONLY */}
+            <div className="hidden lg:flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10">
               {socialLinks.map(link => {
                 const Icon = getSocialIcon(link.platform);
                 const colorClass = getSocialColorClass(link.platform);
@@ -430,49 +427,93 @@ const Navbar: React.FC = () => {
               })}
             </div>
 
-            {/* Admin / Login Button */}
+            {/* Admin / Login Button - DESKTOP ONLY */}
             <button 
               onClick={() => setIsAdminOpen(true)}
-              className="p-2 sm:px-3 sm:py-2 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-900 text-amber-400 transition-all border border-amber-400/30 shadow-md flex items-center gap-1.5 text-xs font-bold"
+              className="hidden lg:flex px-3.5 py-2 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-900 text-amber-400 transition-all border border-amber-400/30 shadow-md items-center gap-1.5 text-xs font-bold"
               title="Panel Admin Dinas"
               aria-label="Admin Login"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span className="hidden md:inline-block">Admin</span>
+              <span>Admin</span>
             </button>
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button (Garis 3 Modern) - MOBILE ONLY */}
             <button
-              className="lg:hidden text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              className="lg:hidden text-white p-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all border border-white/15 flex items-center justify-center focus:outline-none"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Buka Menu Navigasi"
+              aria-label={isMobileMenuOpen ? "Tutup Menu" : "Buka Menu Garis Tiga"}
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6 text-amber-400" />
+              ) : (
+                <div className="flex flex-col gap-1.5 w-6 items-center justify-center">
+                  <span className="w-6 h-0.5 bg-white rounded-full transition-all" />
+                  <span className="w-6 h-0.5 bg-amber-400 rounded-full transition-all" />
+                  <span className="w-6 h-0.5 bg-white rounded-full transition-all" />
+                </div>
+              )}
             </button>
           </div>
         </div>
 
-        {/* MOBILE NAVIGATION DRAWER */}
+        {/* MOBILE NAVIGATION DRAWER (Slide-in Menu Garis 3) */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-[64px] bg-slate-950/95 backdrop-blur-xl border-b border-white/10 p-5 shadow-2xl max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in space-y-6">
+          <div className="lg:hidden fixed inset-x-0 top-[60px] sm:top-[68px] bg-slate-950/98 backdrop-blur-2xl border-b border-white/10 p-5 shadow-2xl max-h-[calc(100vh-68px)] overflow-y-auto animate-fade-in space-y-6">
             
+            {/* Drawer Top Utility: Language Switcher & Admin Button */}
+            <div className="flex items-center justify-between gap-3 p-2 rounded-2xl bg-white/5 border border-white/10">
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+                <button
+                  onClick={() => setLanguage('id')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    language === 'id' 
+                      ? 'bg-amber-500 text-slate-950 shadow-md' 
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <IndonesiaFlagIcon className="w-3.5 h-3.5" />
+                  <span>ID</span>
+                </button>
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    language === 'en' 
+                      ? 'bg-amber-500 text-slate-950 shadow-md' 
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <EnglishFlagIcon className="w-3.5 h-3.5" />
+                  <span>EN</span>
+                </button>
+              </div>
+
+              <button 
+                onClick={() => { setIsAdminOpen(true); setIsMobileMenuOpen(false); }}
+                className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-400/40 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Login Admin</span>
+              </button>
+            </div>
+
             {/* Quick Action Badges on Mobile */}
             <div className="grid grid-cols-2 gap-2.5">
               <a
-                href="#arts"
-                onClick={(e) => handleNavClick(e, '#arts')}
-                className="p-3 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-amber-300 font-bold text-xs flex items-center gap-2"
-              >
-                <Building2 className="w-4 h-4 text-amber-400" />
-                <span>Lembaga Budaya</span>
-              </a>
-              <a
                 href="#attractions"
                 onClick={(e) => handleNavClick(e, '#attractions')}
-                className="p-3 rounded-2xl bg-white/10 border border-white/15 text-white font-bold text-xs flex items-center gap-2"
+                className="p-3 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-amber-300 font-bold text-xs flex items-center gap-2 hover:bg-amber-500/25 transition-colors"
               >
-                <MapPin className="w-4 h-4 text-amber-400" />
-                <span>Museum</span>
+                <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Museum & Wisata</span>
+              </a>
+              <a
+                href="#heritage"
+                onClick={(e) => handleNavClick(e, '#heritage')}
+                className="p-3 rounded-2xl bg-white/10 border border-white/15 text-white font-bold text-xs flex items-center gap-2 hover:bg-white/15 transition-colors"
+              >
+                <Building2 className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Cagar Budaya</span>
               </a>
             </div>
 
@@ -483,22 +524,25 @@ const Navbar: React.FC = () => {
               <a
                 href="#hero"
                 onClick={(e) => handleNavClick(e, '#hero')}
-                className="block py-2 text-base font-bold border-b border-white/5 hover:text-amber-400"
+                className="flex items-center justify-between py-2 text-base font-bold border-b border-white/10 hover:text-amber-400"
               >
-                {language === 'en' ? 'Home' : 'Beranda'}
+                <span>{language === 'en' ? 'Home' : 'Beranda'}</span>
+                <span className="text-amber-400 text-xs">→</span>
               </a>
 
               {/* Profil Group */}
-              <div className="space-y-2 border-b border-white/5 pb-3">
-                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90">
-                  {language === 'en' ? 'Profile' : 'Profil Organisasi'}
+              <div className="space-y-2 border-b border-white/10 pb-3">
+                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90 flex items-center gap-2">
+                  <Landmark className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Profile' : 'Profil Organisasi'}</span>
                 </div>
                 <div className="pl-3 space-y-2 text-sm text-slate-300">
                   <button 
                     onClick={() => { setActiveProfileModal('vision'); setIsMobileMenuOpen(false); }}
-                    className="block w-full text-left py-1 hover:text-white"
+                    className="block w-full text-left py-1 hover:text-white flex items-center justify-between"
                   >
-                    • {language === 'en' ? 'Vision & Mission' : 'Visi & Misi'}
+                    <span>• {language === 'en' ? 'Vision & Mission' : 'Visi & Misi'}</span>
+                    <span className="text-[10px] text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded">Dinas</span>
                   </button>
                   <button 
                     onClick={() => { setActiveProfileModal('structure'); setIsMobileMenuOpen(false); }}
@@ -510,15 +554,16 @@ const Navbar: React.FC = () => {
                     onClick={() => { setActiveProfileModal('profile'); setIsMobileMenuOpen(false); }}
                     className="block w-full text-left py-1 hover:text-white"
                   >
-                    • {language === 'en' ? 'Department Profile' : 'Profil Dinas'}
+                    • {language === 'en' ? 'Department Profile' : 'Profil & Sejarah Dinas'}
                   </button>
                 </div>
               </div>
 
               {/* Warisan Budaya Group */}
-              <div className="space-y-2 border-b border-white/5 pb-3">
-                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90">
-                  {language === 'en' ? 'Cultural Heritage' : 'Warisan Budaya'}
+              <div className="space-y-2 border-b border-white/10 pb-3">
+                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90 flex items-center gap-2">
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Cultural Heritage' : 'Warisan Budaya'}</span>
                 </div>
                 <div className="pl-3 space-y-2 text-sm text-slate-300">
                   <button 
@@ -535,17 +580,19 @@ const Navbar: React.FC = () => {
                   </button>
                   <button 
                     onClick={(e) => handleNavClick(e, '#portals')}
-                    className="block w-full text-left py-1 hover:text-white"
+                    className="block w-full text-left py-1 hover:text-white flex items-center justify-between"
                   >
-                    • {language === 'en' ? 'UNESCO WTBOS Portal' : 'Portal Resmi UNESCO WTBOS'}
+                    <span>• {language === 'en' ? 'UNESCO WTBOS Portal' : 'Portal Resmi UNESCO WTBOS'}</span>
+                    <span className="text-[10px] text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded">UNESCO</span>
                   </button>
                 </div>
               </div>
 
               {/* Informasi & Berita Group */}
-              <div className="space-y-2 border-b border-white/5 pb-3">
-                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90">
-                  {language === 'en' ? 'Information & Services' : 'Informasi & Layanan'}
+              <div className="space-y-2 border-b border-white/10 pb-3">
+                <div className="text-xs uppercase tracking-wider font-bold text-amber-400/90 flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Information & Services' : 'Informasi & Layanan'}</span>
                 </div>
                 <div className="pl-3 space-y-2 text-sm text-slate-300">
                   <button 
@@ -570,9 +617,12 @@ const Navbar: React.FC = () => {
               </div>
             </div>
 
-            {/* Mobile Footer: Social Media & Language */}
-            <div className="pt-4 flex flex-col gap-4">
-              <div className="flex items-center justify-center gap-3">
+            {/* Mobile Footer: Social Media */}
+            <div className="pt-2 flex flex-col items-center gap-3">
+              <span className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">
+                {language === 'en' ? 'Official Social Media' : 'Media Sosial Resmi'}
+              </span>
+              <div className="flex items-center justify-center gap-2.5">
                 {socialLinks.map(link => {
                   const Icon = getSocialIcon(link.platform);
                   const colorClass = getSocialColorClass(link.platform);
@@ -582,39 +632,13 @@ const Navbar: React.FC = () => {
                       href={link.url} 
                       target="_blank" 
                       rel="noreferrer"
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${colorClass}`} 
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${colorClass}`} 
                       title={link.platform}
                     >
                       <Icon className="w-4 h-4" />
                     </a>
                   );
                 })}
-              </div>
-
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => { setLanguage(language === 'en' ? 'id' : 'en'); setIsMobileMenuOpen(false); }}
-                  className="flex-1 py-3 px-4 rounded-xl bg-white text-slate-900 font-bold text-xs flex items-center justify-center gap-2 shadow-md"
-                >
-                  {language === 'en' ? (
-                    <>
-                      <span>Bahasa Indonesia</span>
-                      <IndonesiaFlagIcon className="w-4 h-4" />
-                    </>
-                  ) : (
-                    <>
-                      <span>English Language</span>
-                      <EnglishFlagIcon className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-                <button 
-                  onClick={() => { setIsAdminOpen(true); setIsMobileMenuOpen(false); }}
-                  className="py-3 px-4 rounded-xl bg-amber-500 text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <Lock className="w-4 h-4" />
-                  <span>Admin</span>
-                </button>
               </div>
             </div>
           </div>

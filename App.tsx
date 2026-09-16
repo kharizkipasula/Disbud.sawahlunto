@@ -8,8 +8,8 @@ import HeritageMain from './components/HeritageMain';
 import ArtsSection from './components/ArtsSection';
 import Attractions from './components/Attractions';
 import Footer from './components/Footer';
-import AiGuide from './components/AiGuide';
 import HalloSawahlunto from './components/HalloSawahlunto';
+import BackToTop from './components/BackToTop';
 import AdminPanel from './components/AdminPanel';
 import NewsSection from './components/NewsSection';
 import NewsDetail from './components/NewsDetail';
@@ -53,7 +53,7 @@ const AppContent: React.FC = () => {
       {sectionOrder.filter(key => sectionVisibility[key as keyof typeof sectionVisibility] !== false).map(key => sectionComponents[key])}
       <Footer />
       <HalloSawahlunto />
-      <AiGuide />
+      <BackToTop />
       <AdminPanel />
       <NewsDetail />
     </div>

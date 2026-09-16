@@ -27,10 +27,10 @@ const HalloSawahlunto: React.FC = () => {
   
   return (
     <>
-      {/* Floating Button - Positioned above the AI Guide button */}
+      {/* Floating Button - WhatsApp Hotline */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-28 md:bottom-28 right-8 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:bg-[#128C7E] transition-all transform hover:scale-110 flex items-center gap-2 group ${isOpen ? 'hidden' : 'flex'}`}
+        className={`fixed bottom-6 right-6 z-40 bg-[#25D366] text-white p-3.5 sm:p-4 rounded-full shadow-2xl hover:bg-[#128C7E] transition-all transform hover:scale-110 flex items-center gap-2 group ${isOpen ? 'hidden' : 'flex'}`}
         aria-label="Layanan Pengaduan Halo Sawahlunto"
       >
         <WhatsAppIcon />

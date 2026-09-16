@@ -320,16 +320,16 @@ const Attractions: React.FC = () => {
             </p>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center flex-wrap gap-2 self-start md:self-end">
+          {/* Category Filter Pills (Swipeable on Mobile) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 max-w-full -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap self-start md:self-end scrollbar-none">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-200 ${
                   activeCategory === cat
-                    ? 'bg-slate-900 text-amber-400 shadow-sm'
+                    ? 'bg-slate-900 text-amber-400 shadow-sm scale-105'
                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
                 }`}
               >
