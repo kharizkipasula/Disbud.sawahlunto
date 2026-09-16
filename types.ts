@@ -203,3 +203,11 @@ export interface User {
   role: UserRole;
   fullName: string;
 }
+
+export interface VisitorStats {
+  today: number;
+  total: number;
+  online: number;
+  lastDate?: string;
+}
+

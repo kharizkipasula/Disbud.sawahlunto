@@ -46,5 +46,10 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if true;
     }
+
+    // Public Visitor Analytics Tracking
+    match /analytics/{docId} {
+      allow read, write: if true;
+    }
   }
 }

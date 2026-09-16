@@ -8,38 +8,46 @@ import {
 import { NavItem, SocialLink } from '../types';
 import { useData } from '../contexts/DataContext';
 
+// Authentic TikTok SVG
+export const TikTokIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3 15.67 6.34 6.34 0 0 0 9.34 22a6.34 6.34 0 0 0 6.34-6.33V9.17a8.16 8.16 0 0 0 4.91 1.63v-3.5c-.34 0-.67-.04-1-.11v-.5z" />
+  </svg>
+);
+
 const getSocialIcon = (platform: string) => {
-  switch (platform) {
-    case 'Instagram': return Instagram;
-    case 'Facebook': return Facebook;
-    case 'Twitter': return Twitter;
-    case 'Youtube': return Youtube;
-    case 'TikTok': return Video;
-    case 'Website': return WebIcon;
-    case 'Email': return Mail;
-    case 'Phone': return Phone;
-    default: return WebIcon;
-  }
+  const p = (platform || '').toLowerCase();
+  if (p === 'facebook') return Facebook;
+  if (p === 'instagram') return Instagram;
+  if (p === 'twitter' || p === 'x') return Twitter;
+  if (p === 'youtube') return Youtube;
+  if (p === 'tiktok') return TikTokIcon;
+  if (p === 'website') return WebIcon;
+  if (p === 'email') return Mail;
+  if (p === 'phone') return Phone;
+  return WebIcon;
 };
 
 const getSocialColorClass = (platform: string) => {
-  switch (platform) {
-    case 'Instagram':
-      return 'bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-sm hover:scale-110 hover:shadow-rose-500/25';
-    case 'Facebook':
-      return 'bg-[#1877F2] text-white shadow-sm hover:scale-110 hover:bg-[#166fe5] hover:shadow-blue-500/25';
-    case 'Youtube':
-      return 'bg-[#FF0000] text-white shadow-sm hover:scale-110 hover:bg-[#e60000] hover:shadow-red-500/25';
-    case 'TikTok':
-      return 'bg-slate-950 text-white shadow-sm hover:scale-110 border border-slate-800 hover:shadow-cyan-500/25';
-    case 'Twitter':
-      return 'bg-[#1DA1F2] text-white shadow-sm hover:scale-110 hover:bg-[#0c85d0] hover:shadow-sky-500/25';
-    case 'Email':
-      return 'bg-emerald-600 text-white shadow-sm hover:scale-110 hover:bg-emerald-700';
-    case 'Phone':
-      return 'bg-teal-600 text-white shadow-sm hover:scale-110 hover:bg-teal-700';
+  const p = (platform || '').toLowerCase();
+  switch (p) {
+    case 'instagram':
+      return 'bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-xs hover:scale-110';
+    case 'facebook':
+      return 'bg-[#1877F2] text-white shadow-xs hover:scale-110 hover:bg-[#166fe5]';
+    case 'youtube':
+      return 'bg-[#FF0000] text-white shadow-xs hover:scale-110 hover:bg-[#e60000]';
+    case 'tiktok':
+      return 'bg-black text-white shadow-xs hover:scale-110 border border-slate-700';
+    case 'twitter':
+    case 'x':
+      return 'bg-black text-white shadow-xs hover:scale-110 border border-slate-800';
+    case 'email':
+      return 'bg-emerald-600 text-white shadow-xs hover:scale-110 hover:bg-emerald-700';
+    case 'phone':
+      return 'bg-teal-600 text-white shadow-xs hover:scale-110 hover:bg-teal-700';
     default:
-      return 'bg-amber-600 text-white shadow-sm hover:scale-110 hover:bg-amber-700';
+      return 'bg-amber-600 text-white shadow-xs hover:scale-110 hover:bg-amber-700';
   }
 };
 
@@ -149,8 +157,8 @@ const Navbar: React.FC = () => {
       <header
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-slate-900/90 backdrop-blur-md shadow-lg py-2.5 border-b border-white/10' 
-            : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent py-4'
+            ? 'bg-gradient-to-b from-black/90 via-black/60 to-black/0 backdrop-blur-md shadow-2xl py-2.5 border-b border-white/10' 
+            : 'bg-gradient-to-b from-black/85 via-black/40 to-transparent py-4'
         }`}
       >
         <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
@@ -403,7 +411,7 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Social Media Icons (Vibrant Modern Circular Badges) */}
-            <div className="hidden xl:flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10">
+            <div className="hidden md:flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10">
               {socialLinks.map(link => {
                 const Icon = getSocialIcon(link.platform);
                 const colorClass = getSocialColorClass(link.platform);
